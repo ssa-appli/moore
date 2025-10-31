@@ -1,0 +1,1668 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Audit {{ audit.reference }} - Moore Sénégal{% endblock %}
+
+{% block content %}
+<div class="pdf-document">
+    <!-- En-tête du document -->
+    <div class="document-header">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="company-info">
+                    <div class="company-logo">
+                        <img src="{% static 'icons/moore-logo.png' %}" alt="Moore Sénégal" class="logo-image">
+                    </div>
+                    <p class="company-subtitle">Cabinet d'Audit et d'Expertise Comptable</p>
+                    <p class="company-address">
+                        Dakar, Sénégal<br>
+                        Tél: +221 XX XXX XX XX | Email: contact@moore.sn
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="document-info">
+                    <h2 class="document-title">ACCEPTATION D'AUDIT</h2>
+                    <p class="document-ref">Référence : {{ audit.reference }}</p>
+                    <p class="document-date">Date : {{ audit.date_added|date:"d/m/Y" }}</p>
+                    {% if is_creator %}
+                        {% if audit.is_published %}
+                            <span class="status-badge published" id="published-badge">ENVOYÉ</span>
+                        {% else %}
+                            <span class="status-badge draft" id="draft-badge">BROUILLON</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations générales -->
+    <div class="section">
+        <h3 class="section-title">I. INFORMATIONS GÉNÉRALES</h3>
+        
+        <div class="subsection">
+            <h4 class="subsection-title">1.1. Informations de création</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Client :</label>
+                    <span>{{ audit.client }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Exercice :</label>
+                    <span>{{ audit.exercice }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Date de création :</label>
+                    <span>{{ audit.date_added|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Dernière modification :</label>
+                    <span>{{ audit.date_updated|date:"d/M/Y" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <h4 class="subsection-title">1.2. Informations de l'entreprise</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Raison sociale :</label>
+                    <span>{{ audit.company_name|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Date de clôture :</label>
+                    <span>{{ audit.closing_date|date:"d/m/Y"|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Forme juridique :</label>
+                    <span>{{ audit.legal_form|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Nom du groupe :</label>
+                    <span>{{ audit.group_name|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Entité d'intérêt public :</label>
+                    <span class="response-badge {{ audit.is_eip|default:'empty' }}">
+                        {% if audit.is_eip == 'yes' %}OUI{% elif audit.is_eip == 'no' %}NON{% else %}N/A{% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Bourse :</label>
+                    <span>{{ audit.stock_exchange|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Pays d'opération :</label>
+                    <span>{{ audit.countries_operated|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Année de début :</label>
+                    <span>{{ audit.start_year|default:"Non renseigné" }}</span>
+                </div>
+            </div>
+            <div class="info-item full-width">
+                <label>Description des activités :</label>
+                <div class="text-content">{{ audit.business_description|default:"Non renseigné" }}</div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <h4 class="subsection-title">1.3. Informations de la mission</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Origine du contact :</label>
+                    <span>{{ audit.contact_origin|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Nature de la mission :</label>
+                    <span>{{ audit.mission_nature|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>COCAC :</label>
+                    <span class="response-badge {{ audit.has_cocac|default:'empty' }}">
+                        {% if audit.has_cocac == 'yes' %}OUI{% elif audit.has_cocac == 'no' %}NON{% else %}N/A{% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Nom du COCAC :</label>
+                    <span>{{ audit.cocac_name|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Audit de composante :</label>
+                    <span class="response-badge {{ audit.is_component_audit|default:'empty' }}">
+                        {% if audit.is_component_audit == 'yes' %}OUI{% elif audit.is_component_audit == 'no' %}NON{% else %}N/A{% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Nom de l'auditeur de composante :</label>
+                    <span>{{ audit.component_audit_name|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Total des honoraires :</label>
+                    <span>{{ audit.total_fees|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Réviseur indépendant :</label>
+                    <span class="response-badge {{ audit.has_independent_review|default:'empty' }}">
+                        {% if audit.has_independent_review == 'yes' %}OUI{% elif audit.has_independent_review == 'no' %}NON{% else %}N/A{% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Nom du réviseur indépendant :</label>
+                    <span>{{ audit.independent_review_name|default:"Non renseigné" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actionnaires -->
+    <div class="section">
+        <h3 class="section-title">II. ACTIONNAIRES</h3>
+        {% if shareholders %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2">Identité</th>
+                        <th colspan="2">Actions détenues</th>
+                        <th colspan="2">Droits de vote</th>
+                    </tr>
+                    <tr>
+                        <th>Quantité détenue</th>
+                        <th>% détenu</th>
+                        <th>Quantité vote</th>
+                        <th>% vote</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for shareholder in shareholders %}
+                    <tr>
+                        <td>{{ shareholder.identity }}</td>
+                        <td class="text-center">{{ shareholder.quantity_held }}</td>
+                        <td class="text-center">{{ shareholder.percentage_held }}%</td>
+                        <td class="text-center">{{ shareholder.quantity_vote }}</td>
+                        <td class="text-center">{{ shareholder.percentage_vote }}%</td>
+                    </tr>
+                    {% endfor %}
+                    {% if shareholders %}
+                    <tr class="total-row">
+                        <td class="text-center"><strong>TOTAL</strong></td>
+                        <td class="text-center"><strong>{{ total_quantity_held }}</strong></td>
+                        <td class="text-center"><strong>{{ total_percentage_held }}%</strong></td>
+                        <td class="text-center"><strong>{{ total_quantity_vote }}</strong></td>
+                        <td class="text-center"><strong>{{ total_percentage_vote }}%</strong></td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-data">Aucun actionnaire renseigné.</div>
+        {% endif %}
+    </div>
+
+    <!-- Filiales -->
+    <div class="section">
+        <h3 class="section-title">III. FILIALES</h3>
+        {% if branches %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Identité</th>
+                        <th>Nationalité</th>
+                        <th>CAC/Auditeur</th>
+                        <th>% détention</th>
+                        <th>% contrôle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for branch in branches %}
+                    <tr>
+                        <td>{{ branch.identity }}</td>
+                        <td>{{ branch.nationality }}</td>
+                        <td>{{ branch.cac_auditor }}</td>
+                        <td class="text-center">{{ branch.ownership_percentage }}%</td>
+                        <td class="text-center">{{ branch.control_percentage }}%</td>
+                    </tr>
+                    {% endfor %}
+                    {% if branches %}
+                    <tr class="total-row">
+                        <td class="text-center" colspan="2"><strong>TOTAL</strong></td>
+                        <td class="text-center"><strong>{{ total_cac_auditor }}</strong></td>
+                        <td class="text-center"><strong>{{ total_ownership_percentage }}%</strong></td>
+                        <td class="text-center"><strong>{{ total_control_percentage }}%</strong></td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-data">Aucune filiale renseignée.</div>
+        {% endif %}
+    </div>
+
+    <!-- Dirigeants -->
+    <div class="section">
+        <h3 class="section-title">IV. DIRIGEANTS</h3>
+        {% if managers %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Poste</th>
+                        <th>Expérience</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for manager in managers %}
+                    <tr>
+                        <td>{{ manager.name }}</td>
+                        <td>{{ manager.position }}</td>
+                        <td>{{ manager.experience }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-data">Aucun dirigeant renseigné.</div>
+        {% endif %}
+    </div>
+
+    <!-- Questions d'audit -->
+    <div class="section">
+        <h3 class="section-title">II. INDÉPENDANCE</h3>
+
+        <div class="subsection">
+            {% for i in "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123"|make_list %}
+                {% if forloop.counter <= 22 %}
+                    <div class="info-item mt-4">
+                        <label>
+                            {% if forloop.counter == 1 %}
+                                1. Les honoraires envisagés représentent-ils une part significative des honoraires du signataire (honoraires égaux ou supérieurs à 15% du CA du signataire) ? Si oui indiquer ci-contre les mesures de sauvegarde prévues.
+                            {% endif %}
+                            {% if forloop.counter == 2 %}
+                                2. Nos honoraires sont-ils insuffisants pour nous permettre d'effectuer notre travail conformément aux normes ?
+                            {% endif %}
+                            {% if forloop.counter == 3 %}
+                                3. A-t-on connaissance de liens financiers entre, d'une part, la personne ou l'entité contrôlée ou l'une des personnes qui la contrôle ou est contrôlée par elle et, d'autre part, le signataire ou un membre de sa famille ?
+                            {% endif %}
+                            {% if forloop.counter == 4 %}
+                                4. Le cabinet ou ses associés ont-ils obtenu/accordé un emprunt, des avances de fonds ou des garanties?
+                            {% endif %}
+                            {% if forloop.counter == 5 %}
+                                5. Existe-t-il une participation financière détenue chez le client ou une entité qui la controle ou qui est contrôlée par elle par :  
+                            {% endif %}
+                            {% if forloop.counter == 6 %}
+                                a. Un associé du cabinet ou un membre de sa famille proche ?
+                            {% endif %}
+                            {% if forloop.counter == 7 %}
+                                b. Le cabinet
+                            {% endif %}
+                            {% if forloop.counter == 8 %}
+                                c. Un membre du réseau ?
+                            {% endif %}
+                            {% if forloop.counter == 9 %}
+                                d. Un membre de l'équipe de la mission ?
+                            {% endif %}
+                            {% if forloop.counter == 10 %}
+                                6. L'acceptation de cette mission peut-elle compromettre notre relation avec nos clients existants ? Par exemple, un des concurrents de ce client est-il client chez nous et ceci menace-t-il notre indépendance ? <br>
+                                Si OUI, préciser ci-contre si vous obtenu le consentement écrit des deux clients.                                
+                            {% endif %}
+                            {% if forloop.counter == 11 %}
+                                7. Existe-t-il des relations d'affaires avec le client ou sa direction pouvant constituer une menace pour l'indépendance?
+                            {% endif %}
+                            {% if forloop.counter == 12 %}
+                                8. A-t-on connaissance de liens familiaux entre, d'une part, une personne occupant une fonction sensible  au sein de l'entité contrôlée et, d'autre part, le commissaire aux comptes, l'un des membres de l'équipe de contrôle, l'un des membres de la direction du cabinet ou l'un des associés du cabinet ou leurs familles ?
+                            {% endif %}
+                            {% if forloop.counter == 13 %}
+                                9. A-t-on connaissance de liens personnels autres que familiaux entre, d'une part, l'entité contrôlée ou une personne y occupant une fonction sensible et, d'autre part, le commissaire aux comptes ou l'un des membres de la direction du cabinet ?
+                            {% endif %}
+                            {% if forloop.counter == 14 %}
+                                10. Existe-t-il un litige opposant au client le cabinet, et susceptible d'affecter notre indépendance ?
+                            {% endif %}
+                            {% if forloop.counter == 15 %}
+                                11. A-t-on procédé aux vérifications requises dans COPERNICUS ? Joindre les preuves 
+                            {% endif %}
+                            {% if forloop.counter == 16 %}
+                                12. Si l'entité ou l'une de ses parties liées disposent d'opérations à l'international et si/ou elle est cotée ou EIP a-t-on effectué network conflict checking ? Joindre les preuves
+                            {% endif %}
+                            {% if forloop.counter == 17 %}
+                                13. Après avoir pris connaissance des prestations de service rendues antérieurement par le cabinet ou par son réseau au client, ou à une entité contrôlée par celle-ci ou qui la contrôle, y a-t-il un risque d'auto révision pouvant en découler ?
+                            {% endif %}
+                            {% if forloop.counter == 18 %}
+                                14. A-t-on procédé au domestic check ? <br>
+                                Joindre les preuves                                
+                            {% endif %}
+                            {% if forloop.counter == 19 %}
+                                15. Le cabinet, les membres du réseau (notamment le réseau Moore, OPTESIS Guinée et Côte d'Ivoire) ont-ils réalisé en faveur du client ou des entités qui la contrôle ou qu'elle contrôle, des prestations incompatibles avec le mandat de CAC ?
+                            {% endif %}
+                            {% if forloop.counter == 20 %}
+                                16. Sommes-nous dans l'un des cas d'interdiction mentionnés dans les articles 698 à 700 de l'AUSCGIE ?
+                            {% endif %}
+                            {% if forloop.counter == 21 %}
+                                17. Sommes-nous convaincus qu'il n'y a pas d'autres objections éthiques sur la base desquelles le cabinet n'accepterait pas le client ?
+                            {% endif %}
+                        </label>
+                    </div>
+                    <div class="info-item">
+                        <label>Réponse :</label>
+                        <span>
+                            {% if forloop.counter == 1 %}
+                                {% if audit.question_1 == 'yes' %}OUI{% elif audit.question_1 == 'no' %}NON{% elif audit.question_1 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 2 %}
+                                {% if audit.question_2 == 'yes' %}OUI{% elif audit.question_2 == 'no' %}NON{% elif audit.question_2 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 3 %}
+                                {% if audit.question_3 == 'yes' %}OUI{% elif audit.question_3 == 'no' %}NON{% elif audit.question_3 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 4 %}
+                                {% if audit.question_4 == 'yes' %}OUI{% elif audit.question_4 == 'no' %}NON{% elif audit.question_4 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 5 %}
+                                {% if audit.question_5 == 'yes' %}OUI{% elif audit.question_5 == 'no' %}NON{% elif audit.question_5 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 6 %}
+                                {% if audit.question_6 == 'yes' %}OUI{% elif audit.question_6 == 'no' %}NON{% elif audit.question_6 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 7 %}
+                                {% if audit.question_7 == 'yes' %}OUI{% elif audit.question_7 == 'no' %}NON{% elif audit.question_7 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 8 %}
+                                {% if audit.question_8 == 'yes' %}OUI{% elif audit.question_8 == 'no' %}NON{% elif audit.question_8 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 9 %}
+                                {% if audit.question_9 == 'yes' %}OUI{% elif audit.question_9 == 'no' %}NON{% elif audit.question_9 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 10 %}
+                                {% if audit.question_10 == 'yes' %}OUI{% elif audit.question_10 == 'no' %}NON{% elif audit.question_10 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 11 %}
+                                {% if audit.question_11 == 'yes' %}OUI{% elif audit.question_11 == 'no' %}NON{% elif audit.question_11 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 12 %}
+                                {% if audit.question_12 == 'yes' %}OUI{% elif audit.question_12 == 'no' %}NON{% elif audit.question_12 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 13 %}
+                                {% if audit.question_13 == 'yes' %}OUI{% elif audit.question_13 == 'no' %}NON{% elif audit.question_13 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 14 %}
+                                {% if audit.question_14 == 'yes' %}OUI{% elif audit.question_14 == 'no' %}NON{% elif audit.question_14 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 15 %}
+                                {% if audit.question_15 == 'yes' %}OUI{% elif audit.question_15 == 'no' %}NON{% elif audit.question_15 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 16 %}
+                                {% if audit.question_16 == 'yes' %}OUI{% elif audit.question_16 == 'no' %}NON{% elif audit.question_16 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 17 %}
+                                {% if audit.question_17 == 'yes' %}OUI{% elif audit.question_17 == 'no' %}NON{% elif audit.question_17 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 18 %}
+                                {% if audit.question_18 == 'yes' %}OUI{% elif audit.question_18 == 'no' %}NON{% elif audit.question_18 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 19 %}
+                                {% if audit.question_19 == 'yes' %}OUI{% elif audit.question_19 == 'no' %}NON{% elif audit.question_19 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 20 %}
+                                {% if audit.question_20 == 'yes' %}OUI{% elif audit.question_20 == 'no' %}NON{% elif audit.question_20 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% elif forloop.counter == 21 %}
+                                {% if audit.question_21 == 'yes' %}OUI{% elif audit.question_21 == 'no' %}NON{% elif audit.question_21 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if forloop.counter == 1 and audit.response_1 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_1 }}</span>
+                        </div>
+                    {% elif forloop.counter == 2 and audit.response_2 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_2 }}</span>
+                        </div>
+                    {% elif forloop.counter == 3 and audit.response_3 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_3 }}</span>
+                        </div>
+                    {% elif forloop.counter == 4 and audit.response_4 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_4 }}</span>
+                        </div>
+                    {% elif forloop.counter == 5 and audit.response_5 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_5 }}</span>
+                        </div>
+                    {% elif forloop.counter == 6 and audit.response_6 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_6 }}</span>
+                        </div>
+                    {% elif forloop.counter == 7 and audit.response_7 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_7 }}</span>
+                        </div>
+                    {% elif forloop.counter == 8 and audit.response_8 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_8 }}</span>
+                        </div>
+                    {% elif forloop.counter == 9 and audit.response_9 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_9 }}</span>
+                        </div>
+                    {% elif forloop.counter == 10 and audit.response_10 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_10 }}</span>
+                        </div>
+                    {% elif forloop.counter == 11 and audit.response_11 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_11 }}</span>
+                        </div>
+                    {% elif forloop.counter == 12 and audit.response_12 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_12 }}</span>
+                        </div>
+                    {% elif forloop.counter == 13 and audit.response_13 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_13 }}</span>
+                        </div>
+                    {% elif forloop.counter == 14 and audit.response_14 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_14 }}</span>
+                        </div>
+                    {% elif forloop.counter == 15 and audit.response_15 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_15 }}</span>
+                        </div>
+                    {% elif forloop.counter == 16 and audit.response_16 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_16 }}</span>
+                        </div>
+                    {% elif forloop.counter == 17 and audit.response_17 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_17 }}</span>
+                        </div>
+                    {% elif forloop.counter == 18 and audit.response_18 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_18 }}</span>
+                        </div>
+                    {% elif forloop.counter == 19 and audit.response_19 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_19 }}</span>
+                        </div>
+                    {% elif forloop.counter == 20 and audit.response_20 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_20 }}</span>
+                        </div>
+                    {% elif forloop.counter == 21 and audit.response_21 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_21 }}</span>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Questions d'audit - Étape 2 -->
+    <div class="section">
+        <h2 class="section-title">III.	Acceptation du client</h2>
+        <h3 class="section-title">I.6. Identification du client</h3>
+
+        <div class="subsection">
+            {% for i in "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123"|make_list %}
+                {% if forloop.counter >= 23 and forloop.counter <= 39 %}
+                    <div class="info-item mt-4">
+                        <label>
+                            {% if forloop.counter == 23 %}
+                                18. Avons-nous obtenu l'original ou l'expédition ou la copie certifiée conforme de l'extrait du RCCM attestant : 
+                            {% endif %}
+                            {% if forloop.counter == 24 %}
+                                a. La forme juridique ?
+                            {% endif %}
+                            {% if forloop.counter == 25 %}
+                                b. Le siège social ?
+                            {% endif %}
+                            {% if forloop.counter == 26 %}
+                                c. Les pouvoirs des personnes agissant au nom de la société ?
+                            {% endif %}
+                            {% if forloop.counter == 27 %}
+                                19. Avons-nous obtenu les statuts à jour ?
+                            {% endif %}
+                            {% if forloop.counter == 28 %}
+                                20. Connaissons-nous avec certitude l'adresse du client ?
+                            {% endif %}
+                            {% if forloop.counter == 29 %}
+                                21. Avons-nous personnellement rencontré le client (face à face) ?
+                            {% endif %}
+                            {% if forloop.counter == 30 %}
+                                22. Avons-nous pu identifier les administrateurs au travers de la publication de leur nomination ainsi que des comptes annuels déposés ?
+                            {% endif %}
+                            {% if forloop.counter == 31 %}
+                                23. Avons-nous une copie de la pièce d'identité des administrateurs, gérants et directeurs de la société (document original, en cours de validité, avec photo et adresse dont nous prenons nous même une copie) ?
+                            {% endif %}
+                            {% if forloop.counter == 32 %}
+                                24. Avons-nous un document probant permettant de valider leur pouvoir d'engager la société ?
+                            {% endif %}
+                            {% if forloop.counter == 33 %}
+                                25. Connaissons-nous l'identité de l'ayant droit économique ?
+                            {% endif %}
+                            {% if forloop.counter == 34 %}
+                                26. S'il s'agit d'une personne morale, avons-nous obtenu les documents d'identification énoncés au point 15 ci-dessus ?
+                            {% endif %}
+                            {% if forloop.counter == 35 %}
+                                27. S'il s'agit d'une personne physique, avons-nous obtenu une pièce d'identité, en cours de validité, avec photo, et adresse (original dont nous prenons nous même copie) ?
+                            {% endif %}
+                            {% if forloop.counter == 36 %}
+                                28. Avons-nous obtenu les justificatifs d'adresse ?
+                            {% endif %}
+                            {% if forloop.counter == 37 %}
+                                29. Avons-nous procédé à des vérifications complémentaires via des moteurs de recherche ou d'autres sources externes sur l'entité et ses dirigeants clés ?
+                            {% endif %}
+                            {% if forloop.counter == 38 %}
+                                30. Le client est-il une PPE nationale ou étrangère ? (Si oui, Application des procédures spécifiques prévues par l'article 54 de la loi LBCFT).
+                            {% endif %}
+                            {% if forloop.counter == 39 %}
+                                31. Dans le cas d'une PPE étrangère avons-nous pu établir l'origine du patrimoine et l'origine des fonds impliqués dans la relation d'affaires ou la transaction ?
+                            {% endif %}
+                        </label>
+                    </div>
+                    <div class="info-item">
+                        <label>Réponse :</label>
+                        <span>
+                            {% if forloop.counter == 23 %}
+                                {% if audit.question_23 == 'yes' %}OUI{% elif audit.question_23 == 'no' %}NON{% elif audit.question_23 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 24 %}
+                                {% if audit.question_24 == 'yes' %}OUI{% elif audit.question_24 == 'no' %}NON{% elif audit.question_24 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 25 %}
+                                {% if audit.question_25 == 'yes' %}OUI{% elif audit.question_25 == 'no' %}NON{% elif audit.question_25 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 26 %}
+                                {% if audit.question_26 == 'yes' %}OUI{% elif audit.question_26 == 'no' %}NON{% elif audit.question_26 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 27 %}
+                                {% if audit.question_27 == 'yes' %}OUI{% elif audit.question_27 == 'no' %}NON{% elif audit.question_27 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 28 %}
+                                {% if audit.question_28 == 'yes' %}OUI{% elif audit.question_28 == 'no' %}NON{% elif audit.question_28 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 29 %}
+                                {% if audit.question_29 == 'yes' %}OUI{% elif audit.question_29 == 'no' %}NON{% elif audit.question_29 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 30 %}
+                                {% if audit.question_30 == 'yes' %}OUI{% elif audit.question_30 == 'no' %}NON{% elif audit.question_30 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 31 %}
+                                {% if audit.question_31 == 'yes' %}OUI{% elif audit.question_31 == 'no' %}NON{% elif audit.question_31 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 32 %}
+                                {% if audit.question_32 == 'yes' %}OUI{% elif audit.question_32 == 'no' %}NON{% elif audit.question_32 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 33 %}
+                                {% if audit.question_33 == 'yes' %}OUI{% elif audit.question_33 == 'no' %}NON{% elif audit.question_33 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 34 %}
+                                {% if audit.question_34 == 'yes' %}OUI{% elif audit.question_34 == 'no' %}NON{% elif audit.question_34 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 35 %}
+                                {% if audit.question_35 == 'yes' %}OUI{% elif audit.question_35 == 'no' %}NON{% elif audit.question_35 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 36 %}
+                                {% if audit.question_36 == 'yes' %}OUI{% elif audit.question_36 == 'no' %}NON{% elif audit.question_36 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 37 %}
+                                {% if audit.question_37 == 'yes' %}OUI{% elif audit.question_37 == 'no' %}NON{% elif audit.question_37 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 38 %}
+                                {% if audit.question_38 == 'yes' %}OUI{% elif audit.question_38 == 'no' %}NON{% elif audit.question_38 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 39 %}
+                                {% if audit.question_39 == 'yes' %}OUI{% elif audit.question_39 == 'no' %}NON{% elif audit.question_39 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if forloop.counter == 23 and audit.response_23 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_23 }}</span>
+                        </div>
+                    {% elif forloop.counter == 24 and audit.response_24 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_24 }}</span>
+                        </div>
+                    {% elif forloop.counter == 25 and audit.response_25 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_25 }}</span>
+                        </div>
+                    {% elif forloop.counter == 26 and audit.response_26 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_26 }}</span>
+                        </div>
+                    {% elif forloop.counter == 27 and audit.response_27 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_27 }}</span>
+                        </div>
+                    {% elif forloop.counter == 28 and audit.response_28 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_28 }}</span>
+                        </div>
+                    {% elif forloop.counter == 29 and audit.response_29 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_29 }}</span>
+                        </div>
+                    {% elif forloop.counter == 30 and audit.response_30 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_30 }}</span>
+                        </div>
+                    {% elif forloop.counter == 31 and audit.response_31 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_31 }}</span>
+                        </div>
+                    {% elif forloop.counter == 32 and audit.response_32 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_32 }}</span>
+                        </div>
+                    {% elif forloop.counter == 33 and audit.response_33 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_33 }}</span>
+                        </div>
+                    {% elif forloop.counter == 34 and audit.response_34 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_34 }}</span>
+                        </div>
+                    {% elif forloop.counter == 35 and audit.response_35 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_35 }}</span>
+                        </div>
+                    {% elif forloop.counter == 36 and audit.response_36 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_36 }}</span>
+                        </div>
+                    {% elif forloop.counter == 37 and audit.response_37 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_37 }}</span>
+                        </div>
+                    {% elif forloop.counter == 38 and audit.response_38 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_38 }}</span>
+                        </div>
+                    {% elif forloop.counter == 39 and audit.response_39 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_39 }}</span>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Questions d'audit - Étape 3 -->
+    <div class="section">
+        <h3 class="section-title">I.7. Prise en compte de l'intégrité du client</h3>
+
+        <div class="subsection">
+            {% for i in "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123"|make_list %}
+                {% if forloop.counter >= 40 and forloop.counter <= 46 %}
+                    <div class="info-item mt-4">
+                        <label>
+                            {% if forloop.counter == 40 %}
+                                32. A-t-on procédé au background check tel qu'il est prévu dans le manuel ISQM du cabinet ? (Joindre les preuves)
+                            {% endif %}
+                            {% if forloop.counter == 41 %}
+                                33. Des doutes ont-ils été soulevés concernant l'intégrité de l'entité, ses propriétaires, administrateurs, dirigeants ?
+                            {% endif %}
+                            {% if forloop.counter == 42 %}
+                                34. La réputation et l'image de l'entreprise et de l'organe de gestion sont-elles contestables ?
+                            {% endif %}
+                            {% if forloop.counter == 43 %}
+                                35. Les recherches effectuées et les informations obtenues sur l'historique professionnel pertinent des administrateurs/gérants actuels sont-elles sources de préoccupation ?
+                            {% endif %}
+                            {% if forloop.counter == 44 %}
+                                36. La nature des activités du client, en ce compris la gestion d'entreprise, est-elle propice aux risques en matière d'intégrité ?
+                            {% endif %}
+                            {% if forloop.counter == 45 %}
+                                37. Dispose-t-on d'informations portant à croire que le client participe au blanchiment d'argent, au financement du terrorisme, ou à d'autres activités criminelles, et notamment la provenance des fonds ?
+                            {% endif %}
+                            {% if forloop.counter == 46 %}
+                                38. Avons-nous relevé des sources de préoccupation dans les documents d'identification obtenus ou en raison de leur non obtention ?
+                            {% endif %}
+                        </label>
+                    </div>
+                    <div class="info-item">
+                        <label>Réponse :</label>
+                        <span>
+                            {% if forloop.counter == 40 %}
+                                {% if audit.question_40 == 'yes' %}OUI{% elif audit.question_40 == 'no' %}NON{% elif audit.question_40 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 41 %}
+                                {% if audit.question_41 == 'yes' %}OUI{% elif audit.question_41 == 'no' %}NON{% elif audit.question_41 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 42 %}
+                                {% if audit.question_42 == 'yes' %}OUI{% elif audit.question_42 == 'no' %}NON{% elif audit.question_42 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 43 %}
+                                {% if audit.question_43 == 'yes' %}OUI{% elif audit.question_43 == 'no' %}NON{% elif audit.question_43 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 44 %}
+                                {% if audit.question_44 == 'yes' %}OUI{% elif audit.question_44 == 'no' %}NON{% elif audit.question_44 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 45 %}
+                                {% if audit.question_45 == 'yes' %}OUI{% elif audit.question_45 == 'no' %}NON{% elif audit.question_45 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 46 %}
+                                {% if audit.question_46 == 'yes' %}OUI{% elif audit.question_46 == 'no' %}NON{% elif audit.question_46 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if forloop.counter == 40 and audit.response_40 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_40 }}</span>
+                        </div>
+                    {% elif forloop.counter == 41 and audit.response_41 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_41 }}</span>
+                        </div>
+                    {% elif forloop.counter == 42 and audit.response_42 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_42 }}</span>
+                        </div>
+                    {% elif forloop.counter == 43 and audit.response_43 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_43 }}</span>
+                        </div>
+                    {% elif forloop.counter == 44 and audit.response_44 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_44 }}</span>
+                        </div>
+                    {% elif forloop.counter == 45 and audit.response_45 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_45 }}</span>
+                        </div>
+                    {% elif forloop.counter == 46 and audit.response_46 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_46 }}</span>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Questions d'audit - Étape 4 -->
+    <div class="section">
+        <h3 class="section-title">I.8. Pratique des affaires</h3>
+
+        <div class="subsection">
+            {% for i in "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123"|make_list %}
+                {% if forloop.counter >= 47 and forloop.counter <= 49 %}
+                    <div class="info-item mt-4">
+                        <label>
+                            {% if forloop.counter == 47 %}
+                                39. Décrivez succinctement les activités et les clients les plus importants de la société : ceux-ci constituent-ils un risque spécifique ?
+                            {% endif %}
+                            {% if forloop.counter == 48 %}
+                                40. Le client intervient-il dans un secteur d'activité exposé à la fraude ou à des risques de blanchiment d'argent ou de financement du terrorisme ?
+                            {% endif %}
+                            {% if forloop.counter == 49 %}
+                                41. Image médiatique du dirigeant et/ou de l'entreprise est-elle susceptible de nuire à l'image du cabinet ?
+                            {% endif %}
+                        </label>
+                    </div>
+                    <div class="info-item">
+                        <label>Réponse :</label>
+                        <span>
+                            {% if forloop.counter == 47 %}
+                                {% if audit.question_47 == 'yes' %}OUI{% elif audit.question_47 == 'no' %}NON{% elif audit.question_47 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 48 %}
+                                {% if audit.question_48 == 'yes' %}OUI{% elif audit.question_48 == 'no' %}NON{% elif audit.question_48 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 49 %}
+                                {% if audit.question_49 == 'yes' %}OUI{% elif audit.question_49 == 'no' %}NON{% elif audit.question_49 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if forloop.counter == 47 and audit.response_47 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_47 }}</span>
+                        </div>
+                    {% elif forloop.counter == 48 and audit.response_48 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_48 }}</span>
+                        </div>
+                    {% elif forloop.counter == 49 and audit.response_49 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_49 }}</span>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Questions d'audit - Étape 5 -->
+    <div class="section">
+        <h3 class="section-title">IV.1. Procédure de nomination</h3>
+
+        <div class="subsection">
+            {% for i in "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123"|make_list %}
+                {% if forloop.counter >= 50 and forloop.counter <= 60 %}
+                    <div class="info-item mt-4">
+                        <label>
+                            {% if forloop.counter == 50 %}
+                                42. Si notre nomination intervient dans le cadre d'un non renouvellement, d'une démission ou d'un empêchement, avons-nous pris contact avec le confrère précédent ?
+                            {% endif %}
+                            {% if forloop.counter == 51 %}
+                                43. Les discussions avec le prédécesseur ont-elles révélé des risques sur les éléments suivants :
+                            {% endif %}
+                            {% if forloop.counter == 52 %}
+                                a. L'accès aux dossiers du client ;
+                            {% endif %}
+                            {% if forloop.counter == 53 %}
+                                b. Les honoraires impayés ;
+                            {% endif %}
+                            {% if forloop.counter == 54 %}
+                                c. Les divergences d'opinions ou différends ;
+                            {% endif %}
+                            {% if forloop.counter == 55 %}
+                                d. L'intégrité des dirigeants et du conseil ;
+                            {% endif %}
+                            {% if forloop.counter == 56 %}
+                                e. Les raisons du changement ;
+                            {% endif %}
+                            {% if forloop.counter == 57 %}
+                                f. Les exigences déraisonnables ou le manque de coopération ?
+                            {% endif %}
+                            {% if forloop.counter == 58 %}
+                                g. Le non-respect des lois et réglementations ?
+                            {% endif %}
+                            {% if forloop.counter == 59 %}
+                                h. Autres raisons pour lesquelles nous ne devrions pas accepter la mission.
+                            {% endif %}
+                            {% if forloop.counter == 60 %}
+                                44. Les procédures légales de démission ou révocation ont-elles été respectées ? 
+                            {% endif %}
+                        </label>
+                    </div>
+                    <div class="info-item">
+                        <label>Réponse :</label>
+                        <span>
+                            {% if forloop.counter == 50 %}
+                                {% if audit.question_50 == 'yes' %}OUI{% elif audit.question_50 == 'no' %}NON{% elif audit.question_50 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 51 %}
+                                {% if audit.question_51 == 'yes' %}OUI{% elif audit.question_51 == 'no' %}NON{% elif audit.question_51 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 52 %}
+                                {% if audit.question_52 == 'yes' %}OUI{% elif audit.question_52 == 'no' %}NON{% elif audit.question_52 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 53 %}
+                                {% if audit.question_53 == 'yes' %}OUI{% elif audit.question_53 == 'no' %}NON{% elif audit.question_53 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 54 %}
+                                {% if audit.question_54 == 'yes' %}OUI{% elif audit.question_54 == 'no' %}NON{% elif audit.question_54 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 55 %}
+                                {% if audit.question_55 == 'yes' %}OUI{% elif audit.question_55 == 'no' %}NON{% elif audit.question_55 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 56 %}
+                                {% if audit.question_56 == 'yes' %}OUI{% elif audit.question_56 == 'no' %}NON{% elif audit.question_56 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 57 %}
+                                {% if audit.question_57 == 'yes' %}OUI{% elif audit.question_57 == 'no' %}NON{% elif audit.question_57 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 58 %}
+                                {% if audit.question_58 == 'yes' %}OUI{% elif audit.question_58 == 'no' %}NON{% elif audit.question_58 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 59 %}
+                                {% if audit.question_59 == 'yes' %}OUI{% elif audit.question_59 == 'no' %}NON{% elif audit.question_59 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 60 %}
+                                {% if audit.question_60 == 'yes' %}OUI{% elif audit.question_60 == 'no' %}NON{% elif audit.question_60 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if forloop.counter == 50 and audit.response_50 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_50 }}</span>
+                        </div>
+                    {% elif forloop.counter == 51 and audit.response_51 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_51 }}</span>
+                        </div>
+                    {% elif forloop.counter == 52 and audit.response_52 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_52 }}</span>
+                        </div>
+                    {% elif forloop.counter == 53 and audit.response_53 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_53 }}</span>
+                        </div>
+                    {% elif forloop.counter == 54 and audit.response_54 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_54 }}</span>
+                        </div>
+                    {% elif forloop.counter == 55 and audit.response_55 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_55 }}</span>
+                        </div>
+                    {% elif forloop.counter == 56 and audit.response_56 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_56 }}</span>
+                        </div>
+                    {% elif forloop.counter == 57 and audit.response_57 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_57 }}</span>
+                        </div>
+                    {% elif forloop.counter == 58 and audit.response_58 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_58 }}</span>
+                        </div>
+                    {% elif forloop.counter == 59 and audit.response_59 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_59 }}</span>
+                        </div>
+                    {% elif forloop.counter == 60 and audit.response_60 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_60 }}</span>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Questions d'audit - Étape 6 -->
+    <div class="section">
+        <h3 class="section-title">IV.2. Risques liés à la mission</h3>
+
+        <div class="subsection">
+            {% for i in "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123"|make_list %}
+                {% if forloop.counter >= 61 and forloop.counter <= 77 %}
+                    <div class="info-item mt-4">
+                        <label>
+                            {% if forloop.counter == 61 %}
+                                45. Existe-t-il des problèmes de continuité à signaler ou à anticiper ?
+                            {% endif %}
+                            {% if forloop.counter == 62 %}
+                                46. Les méthodes comptables utilisées dans le cadre de la préparation des états financiers sont-elles sources de préoccupation en termes d'adéquation et de permanence des méthodes ?
+                            {% endif %}
+                            {% if forloop.counter == 63 %}
+                                47. Des risques fiscaux, sociaux, juridiques sont-ils liés à l'activité de la société ?
+                            {% endif %}
+                            {% if forloop.counter == 64 %}
+                                48. La direction n'est pas sensible aux recommandations ou n'a pas mis en place les recommandations de contrôle interne émises par les auditeurs internes et/ou externes.
+                            {% endif %}
+                            {% if forloop.counter == 65 %}
+                                49. Le client est-il soumis à une réglementation particulière ?
+                            {% endif %}
+                            {% if forloop.counter == 66 %}
+                                50. La revue des rapports et dossiers des exercices précédents a-t-elle révélé 
+                            {% endif %}
+                            {% if forloop.counter == 67 %}
+                                a. Des réserves
+                            {% endif %}
+                            {% if forloop.counter == 68 %}
+                                b. D'autres anomalies significatives
+                            {% endif %}
+                            {% if forloop.counter == 69 %}
+                                c. Des problématiques comptables particulières ?
+                            {% endif %}
+                            {% if forloop.counter == 70 %}
+                                51. La comptabilité semble-t-elle être mal tenue ou en retard ?
+                            {% endif %}
+                            {% if forloop.counter == 71 %}
+                                52. Organisation déficiente pouvant entraîner des limitations aux travaux d'audit ?
+                            {% endif %}
+                            {% if forloop.counter == 72 %}
+                                53. La compétence ou l'expérience du personnel sont-elles un facteur de risques ?
+                            {% endif %}
+                            {% if forloop.counter == 73 %}
+                                54. Incertitude sur l'exhaustivité des transactions du fait de l'activité, de l'organisation et/ou du dirigeant
+                            {% endif %}
+                            {% if forloop.counter == 74 %}
+                                55. Avons-nous identifié des facteurs de risque de fraude concernant l'entité ?
+                            {% endif %}
+                            {% if forloop.counter == 75 %}
+                                56. Si l'entité opère dans un secteur réglementé, avons-nous des difficultés pour obtenir les autorisations/agréments nécessaires ?
+                            {% endif %}
+                            {% if forloop.counter == 76 %}
+                                57. En cas de CO-CAC, avons-nous des doutes sur la capacité du COCAC à remplir ses obligations dans le respect des normes professionnelles ?
+                            {% endif %}
+                            {% if forloop.counter == 77 %}
+                                58. Dans le cas de l'audit du groupe, notre Intervention est-elle limitée à certaines sociétés du groupe ?
+                            {% endif %}
+                        </label>
+                    </div>
+                    <div class="info-item">
+                        <label>Réponse :</label>
+                        <span>
+                            {% if forloop.counter == 61 %}
+                                {% if audit.question_61 == 'yes' %}OUI{% elif audit.question_61 == 'no' %}NON{% elif audit.question_61 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 62 %}
+                                {% if audit.question_62 == 'yes' %}OUI{% elif audit.question_62 == 'no' %}NON{% elif audit.question_62 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 63 %}
+                                {% if audit.question_63 == 'yes' %}OUI{% elif audit.question_63 == 'no' %}NON{% elif audit.question_63 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 64 %}
+                                {% if audit.question_64 == 'yes' %}OUI{% elif audit.question_64 == 'no' %}NON{% elif audit.question_64 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 65 %}
+                                {% if audit.question_65 == 'yes' %}OUI{% elif audit.question_65 == 'no' %}NON{% elif audit.question_65 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 66 %}
+                                {% if audit.question_66 == 'yes' %}OUI{% elif audit.question_66 == 'no' %}NON{% elif audit.question_66 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 67 %}
+                                {% if audit.question_67 == 'yes' %}OUI{% elif audit.question_67 == 'no' %}NON{% elif audit.question_67 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 68 %}
+                                {% if audit.question_68 == 'yes' %}OUI{% elif audit.question_68 == 'no' %}NON{% elif audit.question_68 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 69 %}
+                                {% if audit.question_69 == 'yes' %}OUI{% elif audit.question_69 == 'no' %}NON{% elif audit.question_69 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 70 %}
+                                {% if audit.question_70 == 'yes' %}OUI{% elif audit.question_70 == 'no' %}NON{% elif audit.question_70 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 71 %}
+                                {% if audit.question_71 == 'yes' %}OUI{% elif audit.question_71 == 'no' %}NON{% elif audit.question_71 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 72 %}
+                                {% if audit.question_72 == 'yes' %}OUI{% elif audit.question_72 == 'no' %}NON{% elif audit.question_72 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 73 %}
+                                {% if audit.question_73 == 'yes' %}OUI{% elif audit.question_73 == 'no' %}NON{% elif audit.question_73 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 74 %}
+                                {% if audit.question_74 == 'yes' %}OUI{% elif audit.question_74 == 'no' %}NON{% elif audit.question_74 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 75 %}
+                                {% if audit.question_75 == 'yes' %}OUI{% elif audit.question_75 == 'no' %}NON{% elif audit.question_75 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 76 %}
+                                {% if audit.question_76 == 'yes' %}OUI{% elif audit.question_76 == 'no' %}NON{% elif audit.question_76 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 77 %}
+                                {% if audit.question_77 == 'yes' %}OUI{% elif audit.question_77 == 'no' %}NON{% elif audit.question_77 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if forloop.counter == 61 and audit.response_61 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_61 }}</span>
+                        </div>
+                    {% elif forloop.counter == 62 and audit.response_62 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_62 }}</span>
+                        </div>
+                    {% elif forloop.counter == 63 and audit.response_63 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_63 }}</span>
+                        </div>
+                    {% elif forloop.counter == 64 and audit.response_64 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_64 }}</span>
+                        </div>
+                    {% elif forloop.counter == 65 and audit.response_65 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_65 }}</span>
+                        </div>
+                    {% elif forloop.counter == 66 and audit.response_66 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_66 }}</span>
+                        </div>
+                    {% elif forloop.counter == 67 and audit.response_67 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_67 }}</span>
+                        </div>
+                    {% elif forloop.counter == 68 and audit.response_68 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_68 }}</span>
+                        </div>
+                    {% elif forloop.counter == 69 and audit.response_69 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_69 }}</span>
+                        </div>
+                    {% elif forloop.counter == 70 and audit.response_70 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_70 }}</span>
+                        </div>
+                    {% elif forloop.counter == 71 and audit.response_71 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_71 }}</span>
+                        </div>
+                    {% elif forloop.counter == 72 and audit.response_72 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_72 }}</span>
+                        </div>
+                    {% elif forloop.counter == 73 and audit.response_73 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_73 }}</span>
+                        </div>
+                    {% elif forloop.counter == 74 and audit.response_74 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_74 }}</span>
+                        </div>
+                    {% elif forloop.counter == 75 and audit.response_75 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_75 }}</span>
+                        </div>
+                    {% elif forloop.counter == 76 and audit.response_76 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_76 }}</span>
+                        </div>
+                    {% elif forloop.counter == 77 and audit.response_77 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_77 }}</span>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Questions d'audit - Étape 7 -->
+    <div class="section">
+        <h3 class="section-title">IV.3. Services, Ressources et compétences du cabinet</h3>
+
+        <div class="subsection">
+            {% for i in "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123"|make_list %}
+                {% if forloop.counter >= 78 and forloop.counter <= 83 %}
+                    <div class="info-item mt-4">
+                        <label>
+                            {% if forloop.counter == 78 %}
+                                59. Y -a-t-il un risque que la direction de l'entité impose une limitation de l'étendue de l'audit ?
+                            {% endif %}
+                            {% if forloop.counter == 79 %}
+                                60. Le client attend-il de nous des positions différentes de celles du prédécesseur ?
+                            {% endif %}
+                            {% if forloop.counter == 80 %}
+                                61. Avons-nous un doute sur notre capacité à réaliser la mission dans le délai défini ? 
+                            {% endif %}
+                            {% if forloop.counter == 81 %}
+                                62. Avons-nous un doute sur notre capacité à mobiliser le personnel en nombre suffisant disposant des compétences et des connaissances requises pour effectuer la mission ?
+                            {% endif %}
+                            {% if forloop.counter == 82 %}
+                                63. Le cas échéant, avons-nous un doute sur la disponibilité, la compétence et la réputation de l'expert devant intervenir sur la mission ?
+                            {% endif %}
+                            {% if forloop.counter == 83 %}
+                                64. Le cas échéant, rencontrons-nous des difficultés pour identifier un réviseur indépendant ayant les compétences et la disponibilité requises pour remplir le rôle ?
+                            {% endif %}
+                        </label>
+                    </div>
+                    <div class="info-item">
+                        <label>Réponse :</label>
+                        <span>
+                            {% if forloop.counter == 78 %}
+                                {% if audit.question_78 == 'yes' %}OUI{% elif audit.question_78 == 'no' %}NON{% elif audit.question_78 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 79 %}
+                                {% if audit.question_79 == 'yes' %}OUI{% elif audit.question_79 == 'no' %}NON{% elif audit.question_79 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 80 %}
+                                {% if audit.question_80 == 'yes' %}OUI{% elif audit.question_80 == 'no' %}NON{% elif audit.question_80 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 81 %}
+                                {% if audit.question_81 == 'yes' %}OUI{% elif audit.question_81 == 'no' %}NON{% elif audit.question_81 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 82 %}
+                                {% if audit.question_82 == 'yes' %}OUI{% elif audit.question_82 == 'no' %}NON{% elif audit.question_82 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                            {% if forloop.counter == 83 %}
+                                {% if audit.question_83 == 'yes' %}OUI{% elif audit.question_83 == 'no' %}NON{% elif audit.question_83 == 'not_applicable' %}N/A{% else %}Non renseigné{% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if forloop.counter == 78 and audit.response_78 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_78 }}</span>
+                        </div>
+                    {% elif forloop.counter == 79 and audit.response_79 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_79 }}</span>
+                        </div>
+                    {% elif forloop.counter == 80 and audit.response_80 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_80 }}</span>
+                        </div>
+                    {% elif forloop.counter == 81 and audit.response_81 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_81 }}</span>
+                        </div>
+                    {% elif forloop.counter == 82 and audit.response_82 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_82 }}</span>
+                        </div>
+                    {% elif forloop.counter == 83 and audit.response_83 %}
+                        <div class="info-item">
+                            <label>Commentaire :</label>
+                            <span>{{ audit.response_83 }}</span>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Conclusion de la mission -->
+    {% if audit.is_reviewed %}
+    <div class="section">
+        <h3 class="section-title">V. CONCLUSION DE LA MISSION</h3>
+        
+        <div class="subsection">
+            <h4 class="subsection-title">Informations de révision</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Révisé par :</label>
+                    <span>{{ audit.reviewed_by.get_full_name|default:audit.reviewed_by.username|default:"Non renseigné" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Date de révision :</label>
+                    <span>{{ audit.reviewed_at|date:"d/m/Y"|default:"Non renseigné" }}</span>
+                </div>
+                {% if audit.signed_by %}
+                <div class="info-item">
+                    <label>Signé par :</label>
+                    <span>{{ audit.signed_by.get_full_name|default:audit.signed_by.username }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Date de signature :</label>
+                    <span>{{ audit.signed_at|date:"d/m/Y"|default:"Non renseigné" }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="subsection">
+            <h4 class="subsection-title">Décision et évaluation</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Décision :</label>
+                    <span class="response-badge {% if audit.accepte_mission == 'yes' %}yes{% elif audit.accepte_mission == 'no' %}no{% else %}empty{% endif %}">
+                        {% if audit.accepte_mission == 'yes' %}Accepter la mission
+                        {% elif audit.accepte_mission == 'no' %}Refuser la mission
+                        {% else %}Non renseigné{% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Risque global :</label>
+                    <span>
+                        {% if audit.global_risk == 'low' %}Risque faible
+                        {% elif audit.global_risk == 'medium' %}Risque modéré
+                        {% elif audit.global_risk == 'high' %}Risque élevé
+                        {% else %}Non renseigné{% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Vigilance de la diligence :</label>
+                    <span>
+                        {% if audit.diligence_risk == 'normal' %}Vigilance normale
+                        {% elif audit.diligence_risk == 'enhanced' %}Vigilance renforcée
+                        {% else %}Non renseigné{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        {% if audit.conclusion_mission %}
+        <div class="subsection">
+            <h4 class="subsection-title">Conclusion</h4>
+            <div class="info-item full-width">
+                <div class="text-content">{{ audit.conclusion_mission }}</div>
+            </div>
+        </div>
+        {% endif %}
+        {% if audit.is_signed %}
+        <div class="subsection">
+            <h4 class="subsection-title">Signature</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Signé par :</label>
+                    <span>{{ audit.signed_by.get_full_name|default:audit.signed_by.username }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Signé le :</label>
+                    <span>{{ audit.signed_at|date:"d/m/Y"|default:"Non renseigné" }}</span>
+                </div>
+                {% if audit.senior_signature %}
+                <div class="info-item full-width">
+                    <span>
+                        <img src="{{ audit.senior_signature.url }}" alt="Signature" style="height: 100px;">
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    
+
+    
+    {% comment %}
+        <!-- Pied de page -->
+        <div class="document-footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="signature-section">
+                        <p><strong>Signature Collaborateur :</strong></p>
+                        {% if user.is_authenticated %}
+                            {% if user.profile.signature %}
+                                <div class="signature-display">
+                                    <img src="{{ user.profile.signature.url }}" alt="Signature de {{ user.get_full_name|default:user.username }}" class="signature-image">
+                                </div>
+                            {% else %}
+                                <div class="signature-placeholder">
+                                    <p class="no-signature">Aucune signature enregistrée</p>
+                                </div>
+                            {% endif %}
+                            <p class="signature-info">
+                                {{ user.get_full_name|default:user.username }}<br>
+                                {% if user.profile.statut %}
+                                    {{ user.profile.statut }}
+                                {% endif %}
+                            </p>
+                        {% else %}
+                            <div class="signature-placeholder">
+                                <p class="no-signature">Non connecté</p>
+                            </div>
+                        {% endif %}
+                        <p class="signature-date">Date : {{ audit.date_added|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="signature-section">
+                        <p><strong>Signature Associé :</strong></p>
+                        <div class="signature-placeholder">
+                            <p class="no-signature">À définir</p>
+                        </div>
+                        <p class="signature-date">Date: _______________</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endcomment %}
+
+    <!-- Actions -->
+    {% if not is_pdf %}
+    <div class="document-actions">
+        <a href="{% url 'core:dashboard' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Retour à la liste
+        </a>
+        {% if not audit.is_published %}
+            <a href="{% url 'core:audit_step2' pk=audit.pk %}" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Modifier l'audit
+            </a>
+            {% if audit.step_13 %}
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#publishAuditModal">
+                    <i class="bi bi-send"></i> Envoyer
+                </button>
+            {% endif %}
+        {% endif %}
+        
+        {% if audit.is_signed %}
+            <a href="{% url 'core:audit_pdf' pk=audit.pk %}" class="btn btn-success" target="_blank">
+                <i class="bi bi-file-earmark-pdf"></i> Télécharger PDF
+            </a>
+        {% endif %}
+            
+        {% if is_reviewer and not audit.is_reviewed %}
+            <a href="{% url 'core:add_conclusion' pk=audit.pk %}" class="btn btn-primary">
+                <i class="bi bi-file-text"></i> Ajouter une conclusion
+            </a>
+        {% endif %}
+        {% if is_signed_by and not audit.is_signed %}
+            <button type="button" class="btn btn-success" id="applySignatureBtn">
+                <i class="bi bi-pen"></i> Appliquer ma signature
+            </button>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal pour publier l'audit -->
+{% if not audit.is_published and audit.step_13 %}
+<div class="modal fade" id="publishAuditModal" tabindex="-1" aria-labelledby="publishAuditModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="publishAuditModalLabel">
+                    <i class="bi bi-send"></i> Envoyer l'audit
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    L'audit sera envoyé et une notification par email sera envoyée au collaborateur sélectionné pour effectuer un review de l'audit.
+                </p>
+                <form method="post" action="{% url 'core:publish_audit' pk=audit.pk %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="recipient_id" class="form-label">
+                                <strong>Collaborateur <span class="text-danger">*</span></strong>
+                            </label>
+                            <select class="form-select" id="recipient_id" name="recipient_id" required>
+                                <option value="">-- Sélectionner un destinataire --</option>
+                                {% for profile in audit_profiles %}
+                                    <option value="{{ profile.pk }}">
+                                        {{ profile.user.get_full_name|default:profile.user.username }}{% if profile.statut %} - {{ profile.get_statut_display }}{% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Sélectionnez un membre du département Audit</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">
+                                <strong>Message (optionnel)</strong>
+                            </label>
+                            <textarea class="form-control" id="message" name="message" rows="4" placeholder="Ajoutez un message pour le collaborateur..."></textarea>
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> <strong>NB :</strong> Une fois envoyé, l'audit ne pourra plus être modifié.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Annuler
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-send"></i> Envoyer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Mise en page simple et lisible */
+.pdf-document {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 16px;
+    background: #fff;
+}
+
+/* En-tête simple */
+.document-header {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+}
+.logo-image { height: 40px; width: auto; }
+.document-title { font-size: 20px; margin: 0; }
+.document-ref, .document-date { color: #666; margin: 2px 0; }
+.status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+.status-badge.published { background: #27ae60; color: #fff; }
+.status-badge.draft { background: #f39c12; color: #fff; }
+
+/* Sections et sous-sections */
+.section { margin-bottom: 20px; }
+.section-title { font-size: 16px; margin: 0 0 10px 0; padding-bottom: 6px; border-bottom: 1px solid #ddd; }
+.subsection { margin-bottom: 12px; }
+.subsection-title { font-size: 14px; margin: 0 0 8px 0; color: #333; }
+
+/* Grille d'informations simple */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.info-item { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px dotted #eee; }
+.info-item.full-width { grid-column: 1 / -1; flex-direction: column; }
+.info-item label { min-width: 160px; color: #333; font-weight: 500; }
+.info-item span { color: #222; }
+.text-content { padding: 8px; background: #fafafa; border: 1px solid #eee; }
+
+/* Tableaux simples */
+.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.data-table th, .data-table td { border: 1px solid #ddd; padding: 8px; }
+.data-table thead th { background: #f5f5f5; }
+.data-table .total-row { background: #f0f0f0; font-weight: 600; }
+.text-center { text-align: center; }
+
+/* Actions */
+.document-actions { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+$(document).ready(function() {
+    // Gestion du bouton "Appliquer ma signature"
+    $('#applySignatureBtn').on('click', function() {
+        Swal.fire({
+            title: 'Appliquer votre signature ?',
+            text: 'Êtes-vous sûr de vouloir appliquer votre signature à cet audit ? Cette action est définitive.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#27ae60',
+            cancelButtonColor: '#7f8c8d',
+            confirmButtonText: '<i class="bi bi-check-circle"></i> Oui, appliquer',
+            cancelButtonText: '<i class="bi bi-x-circle"></i> Annuler',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Afficher un loader
+                Swal.fire({
+                    title: 'Traitement en cours...',
+                    text: 'Application de la signature...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Faire la requête AJAX
+                $.ajax({
+                    url: '{% url "core:apply_signature" pk=audit.pk %}',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Succès !',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonColor: '#27ae60',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                // Recharger la page pour voir les changements
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Erreur',
+                                text: response.error || 'Une erreur est survenue lors de l\'application de la signature.',
+                                icon: 'error',
+                                confirmButtonColor: '#e74c3c',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: 'Erreur',
+                            text: 'Une erreur est survenue lors de la communication avec le serveur.',
+                            icon: 'error',
+                            confirmButtonColor: '#e74c3c',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

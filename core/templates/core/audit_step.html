@@ -1,0 +1,1410 @@
+{% extends 'base.html' %}
+
+{% block title %}Étape {{ step }} - {{ step_title }} - Moore Sénégal{% endblock %}
+
+{% block extra_css %}
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<style>
+    .step-note {
+        color: #dc3545 !important;
+    }
+    .step-note span {
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête avec progression -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="h4 mb-0 text-secondary mb-3">#{{ audit.client.company_name }} | {{ audit.exercice }}</h4>
+            <div class="mb-3">
+                <h4 class="h4 mb-0">
+                    <i class="bi bi-list-ol"></i> {{ step_title }}
+                </h4>
+
+                {% if step_subtitle %}
+                    <h5 class="h5 mb-0">
+                        {{ step_subtitle }}
+                    </h5>
+                {% endif %}
+                
+                {% if step_note %}
+                    <p class="step-note mb-0">
+                        NB : {{ step_note|safe }}
+                    </p>
+                {% endif %}
+                    
+                <div class="text-muted mt-3">
+                    Étape {{ step }} sur {{ total_steps }}
+                </div>
+            </div>
+            
+            <!-- Barre de progression -->
+            <div class="progress mb-3" style="height: 8px;">
+                <div class="progress-bar bg-primary" role="progressbar" 
+                     style="width: {% widthratio step total_steps 100 %}%" 
+                     aria-valuenow="{{ step }}" aria-valuemin="0" aria-valuemax="{{ total_steps }}">
+                </div>
+            </div>
+            
+            <!-- Navigation des étapes -->
+            <div class="d-flex justify-content-between">
+                <div class="text-muted">
+                    {% if step > 1 %}
+                        <a href="#" class="text-decoration-none" onclick="goToStep({{ step|add:'-1' }})">
+                            <i class="bi bi-arrow-left"></i> Étape précédente
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="text-muted">
+                    {# Afficher le bouton suivant uniquement si l'étape courante est validée (step_X == True) #}
+                    {% if step == 2 and audit.step_2 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(3)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% elif step == 3 and audit.step_3 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(4)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% elif step == 4 and audit.step_4 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(5)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% elif step == 5 and audit.step_5 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(6)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% elif step == 6 and audit.step_6 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(7)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% elif step == 7 and audit.step_7 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(8)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% elif step == 8 and audit.step_8 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(9)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% elif step == 9 and audit.step_9 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(10)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% elif step == 10 and audit.step_10 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(11)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% elif step == 11 and audit.step_11 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(12)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% elif step == 12 and audit.step_12 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(13)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% elif step == 13 and audit.step_13 %}
+                        <a href="#" class="text-decoration-none" id="next-step-button" onclick="goToStep(14)">
+                            Étape suivante <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" id="auditForm">
+        {% csrf_token %}
+        
+        <!-- Étape 1: Création de l'audit -->
+        {% if step == 1 %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="{{ form.client.id_for_label }}" class="form-label">Client *</label>
+                        {{ form.client }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="{{ form.reference.id_for_label }}" class="form-label">Référence *</label>
+                        {{ form.reference }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="{{ form.exercice.id_for_label }}" class="form-label">Exercice *</label>
+                        {{ form.exercice }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Étape 2: Informations de l'entreprise -->
+        {% if step == 2 %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.company_name.id_for_label }}" class="form-label">{{ form.company_name.label }} </label>
+                        {{ form.company_name }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.closing_date.id_for_label }}" class="form-label">{{ form.closing_date.label }} </label>
+                        {{ form.closing_date }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.legal_form.id_for_label }}" class="form-label">{{ form.legal_form.label }} </label>
+                        {{ form.legal_form }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.group_name.id_for_label }}" class="form-label">{{ form.group_name.label }} </label>
+                        {{ form.group_name }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.is_eip.id_for_label }}" class="form-label">{{ form.is_eip.label }} </label>
+                        {{ form.is_eip }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.stock_exchange.id_for_label }}" class="form-label">{{ form.stock_exchange.label }} </label>
+                        {{ form.stock_exchange }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.countries_operated.id_for_label }}" class="form-label">{{ form.countries_operated.label }} </label>
+                        {{ form.countries_operated }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.start_year.id_for_label }}" class="form-label">{{ form.start_year.label }} </label>
+                        {{ form.start_year }}
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="{{ form.business_description.id_for_label }}" class="form-label">{{ form.business_description.label }}</label>
+                        {{ form.business_description }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Étape 3: Informations de la mission -->
+        {% if step == 3 %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.contact_origin.id_for_label }}" class="form-label">{{ form.contact_origin.label }} </label>
+                        {{ form.contact_origin }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.mission_nature.id_for_label }}" class="form-label">{{ form.mission_nature.label }} </label>
+                        {{ form.mission_nature }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.has_cocac.id_for_label }}" class="form-label">{{ form.has_cocac.label }} </label>
+                        {{ form.has_cocac }}
+                    </div>
+                    <div class="col-md-6 mb-3" id="cocac-name-field" style="display: none;">
+                        <label for="{{ form.cocac_name.id_for_label }}" class="form-label">{{ form.cocac_name.label }} </label>
+                        {{ form.cocac_name }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.is_component_audit.id_for_label }}" class="form-label">{{ form.is_component_audit.label }} </label>
+                        {{ form.is_component_audit }}
+                    </div>
+                    <div class="col-md-6 mb-3" id="component-audit-name-field" style="display: none;">
+                        <label for="{{ form.component_audit_name.id_for_label }}" class="form-label">{{ form.component_audit_name.label }} </label>
+                        {{ form.component_audit_name }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.total_fees.id_for_label }}" class="form-label">{{ form.total_fees.label }} </label>
+                        {{ form.total_fees }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.has_independent_review.id_for_label }}" class="form-label">{{ form.has_independent_review.label }} </label>
+                        {{ form.has_independent_review }}
+                    </div>
+                    <div class="col-md-6 mb-3" id="independent-review-name-field" style="display: none;">
+                        <label for="{{ form.independent_review_name.id_for_label }}" class="form-label">{{ form.independent_review_name.label }} </label>
+                        {{ form.independent_review_name }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Étape 4: Actionnaires -->
+        {% if step == 4 %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="bi bi-people"></i> Actionnaires
+                        </h5>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addShareholder()">
+                            <i class="bi bi-plus"></i> Ajouter
+                        </button>
+                    </div>
+                    <div id="shareholders-container">
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                        <div class="shareholder-form row mb-3" data-shareholder-id="{{ form.instance.id|default:'' }}">
+                            {% if form.instance.id %}
+                                <input type="hidden" name="shareholder_ids" value="{{ form.instance.id }}">
+                            {% endif %}
+                            <div class="col-md-3">
+                                {% if forloop.first %}
+                                    <label class="form-label">Identité</label>
+                                {% endif %}
+                                {{ form.identity }}
+                            </div>
+                            <div class="col-md-2">
+                                {% if forloop.first %}
+                                    <label class="form-label">Quantité détenue</label>
+                                {% endif %}
+                                {{ form.quantity_held }}
+                            </div>
+                            <div class="col-md-2">
+                                {% if forloop.first %}
+                                    <label class="form-label">% détenu</label>
+                                {% endif %}
+                                {{ form.percentage_held }}
+                            </div>
+                            <div class="col-md-2">
+                                {% if forloop.first %}
+                                    <label class="form-label">Quantité vote</label>
+                                {% endif %}
+                                {{ form.quantity_vote }}
+                            </div>
+                            <div class="col-md-2">
+                                {% if forloop.first %}
+                                    <label class="form-label">% vote</label>
+                                {% endif %}
+                                {{ form.percentage_vote }}
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                {% if form.instance.id %}
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-shareholder-button" onclick="confirmDeleteShareholder({{ form.instance.id }}, this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {% else %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeShareholder(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Étape 5: Filiales -->
+        {% if step == 5 %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="bi bi-building"></i> Filiales
+                        </h5>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addBranche()">
+                            <i class="bi bi-plus"></i> Ajouter
+                        </button>
+                    </div>
+                    <div id="branches-container">
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                        <div class="branche-form row mb-3" data-branche-id="{{ form.instance.id|default:'' }}">
+                            {% if form.instance.id %}
+                                <input type="hidden" name="branche_ids" value="{{ form.instance.id }}">
+                            {% endif %}
+                            <div class="col-md-3">
+                                {% if forloop.first %}
+                                    <label class="form-label">Identité</label>
+                                {% endif %}
+                                {{ form.identity }}
+                            </div>
+                            <div class="col-md-2">
+                                {% if forloop.first %}
+                                    <label class="form-label">Nationalité</label>
+                                {% endif %}
+                                {{ form.nationality }}
+                            </div>
+                            <div class="col-md-2">
+                                {% if forloop.first %}
+                                    <label class="form-label">CAC/Auditeur</label>
+                                {% endif %}
+                                {{ form.cac_auditor }}
+                            </div>
+                            <div class="col-md-2">
+                                {% if forloop.first %}
+                                    <label class="form-label">% détention</label>
+                                {% endif %}
+                                {{ form.ownership_percentage }}
+                            </div>
+                            <div class="col-md-2">
+                                {% if forloop.first %}
+                                    <label class="form-label">% contrôle</label>
+                                {% endif %}
+                                {{ form.control_percentage }}
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                {% if form.instance.id %}
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-branche-button" onclick="confirmDeleteBranche({{ form.instance.id }}, this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeBranche(this)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Étape 6: Dirigeants -->
+        {% if step == 6 %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="bi bi-person-badge"></i> Dirigeants
+                        </h5>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addManager()">
+                            <i class="bi bi-plus"></i> Ajouter
+                        </button>
+                    </div>
+                    <div id="managers-container">
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                        <div class="manager-form row mb-3" data-manager-id="{{ form.instance.id|default:'' }}">
+                            {% if form.instance.id %}
+                                <input type="hidden" name="manager_ids" value="{{ form.instance.id }}">
+                            {% endif %}
+                            <div class="col-md-4">
+                                {% if forloop.first %}
+                                    <label class="form-label">Nom</label>
+                                {% endif %}
+                                {{ form.name }}
+                            </div>
+                            <div class="col-md-4">
+                                {% if forloop.first %}
+                                    <label class="form-label">Poste</label>
+                                {% endif %}
+                                {{ form.position }}
+                            </div>
+                            <div class="col-md-3">
+                                {% if forloop.first %}
+                                    <label class="form-label">Expérience</label>
+                                {% endif %}
+                                {{ form.experience }}
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                {% if form.instance.id %}
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-manager-button" onclick="confirmDeleteManager({{ form.instance.id }}, this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {% else %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeManager(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Étape 7-13: Questions d'audit -->
+        {% if step >= 7 and step <= 13 %}
+        <div class="container">
+            <div class="row">
+                {% for i in questions_range %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <label class="form-label">
+                                    {% if i == 1 %}{{ form.question_1.label }}{% endif %}
+                                    {% if i == 2 %}{{ form.question_2.label }}{% endif %}
+                                    {% if i == 3 %}{{ form.question_3.label }}{% endif %}
+                                    {% if i == 4 %}{{ form.question_4.label }}{% endif %}
+                                    {% if i == 5 %}{{ form.question_5.label }}{% endif %}
+                                    {% if i == 6 %}{{ form.question_6.label }}{% endif %}
+                                    {% if i == 7 %}{{ form.question_7.label }}{% endif %}
+                                    {% if i == 8 %}{{ form.question_8.label }}{% endif %}
+                                    {% if i == 9 %}{{ form.question_9.label }}{% endif %}
+                                    {% if i == 10 %}{{ form.question_10.label }}{% endif %}
+                                    {% if i == 11 %}{{ form.question_11.label }}{% endif %}
+                                    {% if i == 12 %}{{ form.question_12.label }}{% endif %}
+                                    {% if i == 13 %}{{ form.question_13.label }}{% endif %}
+                                    {% if i == 14 %}{{ form.question_14.label }}{% endif %}
+                                    {% if i == 15 %}{{ form.question_15.label }}{% endif %}
+                                    {% if i == 16 %}{{ form.question_16.label }}{% endif %}
+                                    {% if i == 17 %}{{ form.question_17.label }}{% endif %}
+                                    {% if i == 18 %}{{ form.question_18.label }}{% endif %}
+                                    {% if i == 19 %}{{ form.question_19.label }}{% endif %}
+                                    {% if i == 20 %}{{ form.question_20.label }}{% endif %}
+                                    {% if i == 21 %}{{ form.question_21.label }}{% endif %}
+                                    {% if i == 22 %}{{ form.question_22.label }}{% endif %}
+                                    {% if i == 23 %}{{ form.question_23.label }}{% endif %}
+                                    {% if i == 24 %}{{ form.question_24.label }}{% endif %}
+                                    {% if i == 25 %}{{ form.question_25.label }}{% endif %}
+                                    {% if i == 26 %}{{ form.question_26.label }}{% endif %}
+                                    {% if i == 27 %}{{ form.question_27.label }}{% endif %}
+                                    {% if i == 28 %}{{ form.question_28.label }}{% endif %}
+                                    {% if i == 29 %}{{ form.question_29.label }}{% endif %}
+                                    {% if i == 30 %}{{ form.question_30.label }}{% endif %}
+                                    {% if i == 31 %}{{ form.question_31.label }}{% endif %}
+                                    {% if i == 32 %}{{ form.question_32.label }}{% endif %}
+                                    {% if i == 33 %}{{ form.question_33.label }}{% endif %}
+                                    {% if i == 34 %}{{ form.question_34.label }}{% endif %}
+                                    {% if i == 35 %}{{ form.question_35.label }}{% endif %}
+                                    {% if i == 36 %}{{ form.question_36.label }}{% endif %}
+                                    {% if i == 37 %}{{ form.question_37.label }}{% endif %}
+                                    {% if i == 38 %}{{ form.question_38.label }}{% endif %}
+                                    {% if i == 39 %}{{ form.question_39.label }}{% endif %}
+                                    {% if i == 40 %}{{ form.question_40.label }}{% endif %}
+                                    {% if i == 41 %}{{ form.question_41.label }}{% endif %}
+                                    {% if i == 42 %}{{ form.question_42.label }}{% endif %}
+                                    {% if i == 43 %}{{ form.question_43.label }}{% endif %}
+                                    {% if i == 44 %}{{ form.question_44.label }}{% endif %}
+                                    {% if i == 45 %}{{ form.question_45.label }}{% endif %}
+                                    {% if i == 46 %}{{ form.question_46.label }}{% endif %}
+                                    {% if i == 47 %}{{ form.question_47.label }}{% endif %}
+                                    {% if i == 48 %}{{ form.question_48.label }}{% endif %}
+                                    {% if i == 49 %}{{ form.question_49.label }}{% endif %}
+                                    {% if i == 50 %}{{ form.question_50.label }}{% endif %}
+                                    {% if i == 51 %}{{ form.question_51.label }}{% endif %}
+                                    {% if i == 52 %}{{ form.question_52.label }}{% endif %}
+                                    {% if i == 53 %}{{ form.question_53.label }}{% endif %}
+                                    {% if i == 54 %}{{ form.question_54.label }}{% endif %}
+                                    {% if i == 55 %}{{ form.question_55.label }}{% endif %}
+                                    {% if i == 56 %}{{ form.question_56.label }}{% endif %}
+                                    {% if i == 57 %}{{ form.question_57.label }}{% endif %}
+                                    {% if i == 58 %}{{ form.question_58.label }}{% endif %}
+                                    {% if i == 59 %}{{ form.question_59.label }}{% endif %}
+                                    {% if i == 60 %}{{ form.question_60.label }}{% endif %}
+                                    {% if i == 61 %}{{ form.question_61.label }}{% endif %}
+                                    {% if i == 62 %}{{ form.question_62.label }}{% endif %}
+                                    {% if i == 63 %}{{ form.question_63.label }}{% endif %}
+                                    {% if i == 64 %}{{ form.question_64.label }}{% endif %}
+                                    {% if i == 65 %}{{ form.question_65.label }}{% endif %}
+                                    {% if i == 66 %}{{ form.question_66.label }}{% endif %}
+                                    {% if i == 67 %}{{ form.question_67.label }}{% endif %}
+                                    {% if i == 68 %}{{ form.question_68.label }}{% endif %}
+                                    {% if i == 69 %}{{ form.question_69.label }}{% endif %}
+                                    {% if i == 70 %}{{ form.question_70.label }}{% endif %}
+                                    {% if i == 71 %}{{ form.question_71.label }}{% endif %}
+                                    {% if i == 72 %}{{ form.question_72.label }}{% endif %}
+                                    {% if i == 73 %}{{ form.question_73.label }}{% endif %}
+                                    {% if i == 74 %}{{ form.question_74.label }}{% endif %}
+                                    {% if i == 75 %}{{ form.question_75.label }}{% endif %}
+                                    {% if i == 76 %}{{ form.question_76.label }}{% endif %}
+                                    {% if i == 77 %}{{ form.question_77.label }}{% endif %}
+                                    {% if i == 78 %}{{ form.question_78.label }}{% endif %}
+                                    {% if i == 79 %}{{ form.question_79.label }}{% endif %}
+                                    {% if i == 80 %}{{ form.question_80.label }}{% endif %}
+                                    {% if i == 81 %}{{ form.question_81.label }}{% endif %}
+                                    {% if i == 82 %}{{ form.question_82.label }}{% endif %}
+                                    {% if i == 83 %}{{ form.question_83.label }}{% endif %}
+                                </label>
+                                {% if i == 1 %}{{ form.question_1 }}{% endif %}
+                                {% if i == 2 %}{{ form.question_2 }}{% endif %}
+                                {% if i == 3 %}{{ form.question_3 }}{% endif %}
+                                {% if i == 4 %}{{ form.question_4 }}{% endif %}
+                                {% if i == 5 %}{{ form.question_5 }}{% endif %}
+                                {% if i == 6 %}{{ form.question_6 }}{% endif %}
+                                {% if i == 7 %}{{ form.question_7 }}{% endif %}
+                                {% if i == 8 %}{{ form.question_8 }}{% endif %}
+                                {% if i == 9 %}{{ form.question_9 }}{% endif %}
+                                {% if i == 10 %}{{ form.question_10 }}{% endif %}
+                                {% if i == 11 %}{{ form.question_11 }}{% endif %}
+                                {% if i == 12 %}{{ form.question_12 }}{% endif %}
+                                {% if i == 13 %}{{ form.question_13 }}{% endif %}
+                                {% if i == 14 %}{{ form.question_14 }}{% endif %}
+                                {% if i == 15 %}{{ form.question_15 }}{% endif %}
+                                {% if i == 16 %}{{ form.question_16 }}{% endif %}
+                                {% if i == 17 %}{{ form.question_17 }}{% endif %}
+                                {% if i == 18 %}{{ form.question_18 }}{% endif %}
+                                {% if i == 19 %}{{ form.question_19 }}{% endif %}
+                                {% if i == 20 %}{{ form.question_20 }}{% endif %}
+                                {% if i == 21 %}{{ form.question_21 }}{% endif %}
+                                {% if i == 22 %}{{ form.question_22 }}{% endif %}
+                                {% if i == 23 %}{{ form.question_23 }}{% endif %}
+                                {% if i == 24 %}{{ form.question_24 }}{% endif %}
+                                {% if i == 25 %}{{ form.question_25 }}{% endif %}
+                                {% if i == 26 %}{{ form.question_26 }}{% endif %}
+                                {% if i == 27 %}{{ form.question_27 }}{% endif %}
+                                {% if i == 28 %}{{ form.question_28 }}{% endif %}
+                                {% if i == 29 %}{{ form.question_29 }}{% endif %}
+                                {% if i == 30 %}{{ form.question_30 }}{% endif %}
+                                {% if i == 31 %}{{ form.question_31 }}{% endif %}
+                                {% if i == 32 %}{{ form.question_32 }}{% endif %}
+                                {% if i == 33 %}{{ form.question_33 }}{% endif %}
+                                {% if i == 34 %}{{ form.question_34 }}{% endif %}
+                                {% if i == 35 %}{{ form.question_35 }}{% endif %}
+                                {% if i == 36 %}{{ form.question_36 }}{% endif %}
+                                {% if i == 37 %}{{ form.question_37 }}{% endif %}
+                                {% if i == 38 %}{{ form.question_38 }}{% endif %}
+                                {% if i == 39 %}{{ form.question_39 }}{% endif %}
+                                {% if i == 40 %}{{ form.question_40 }}{% endif %}
+                                {% if i == 41 %}{{ form.question_41 }}{% endif %}
+                                {% if i == 42 %}{{ form.question_42 }}{% endif %}
+                                {% if i == 43 %}{{ form.question_43 }}{% endif %}
+                                {% if i == 44 %}{{ form.question_44 }}{% endif %}
+                                {% if i == 45 %}{{ form.question_45 }}{% endif %}
+                                {% if i == 46 %}{{ form.question_46 }}{% endif %}
+                                {% if i == 47 %}{{ form.question_47 }}{% endif %}
+                                {% if i == 48 %}{{ form.question_48 }}{% endif %}
+                                {% if i == 49 %}{{ form.question_49 }}{% endif %}
+                                {% if i == 50 %}{{ form.question_50 }}{% endif %}
+                                {% if i == 51 %}{{ form.question_51 }}{% endif %}
+                                {% if i == 52 %}{{ form.question_52 }}{% endif %}
+                                {% if i == 53 %}{{ form.question_53 }}{% endif %}
+                                {% if i == 54 %}{{ form.question_54 }}{% endif %}
+                                {% if i == 55 %}{{ form.question_55 }}{% endif %}
+                                {% if i == 56 %}{{ form.question_56 }}{% endif %}
+                                {% if i == 57 %}{{ form.question_57 }}{% endif %}
+                                {% if i == 58 %}{{ form.question_58 }}{% endif %}
+                                {% if i == 59 %}{{ form.question_59 }}{% endif %}
+                                {% if i == 60 %}{{ form.question_60 }}{% endif %}
+                                {% if i == 61 %}{{ form.question_61 }}{% endif %}
+                                {% if i == 62 %}{{ form.question_62 }}{% endif %}
+                                {% if i == 63 %}{{ form.question_63 }}{% endif %}
+                                {% if i == 64 %}{{ form.question_64 }}{% endif %}
+                                {% if i == 65 %}{{ form.question_65 }}{% endif %}
+                                {% if i == 66 %}{{ form.question_66 }}{% endif %}
+                                {% if i == 67 %}{{ form.question_67 }}{% endif %}
+                                {% if i == 68 %}{{ form.question_68 }}{% endif %}
+                                {% if i == 69 %}{{ form.question_69 }}{% endif %}
+                                {% if i == 70 %}{{ form.question_70 }}{% endif %}
+                                {% if i == 71 %}{{ form.question_71 }}{% endif %}
+                                {% if i == 72 %}{{ form.question_72 }}{% endif %}
+                                {% if i == 73 %}{{ form.question_73 }}{% endif %}
+                                {% if i == 74 %}{{ form.question_74 }}{% endif %}
+                                {% if i == 75 %}{{ form.question_75 }}{% endif %}
+                                {% if i == 76 %}{{ form.question_76 }}{% endif %}
+                                {% if i == 77 %}{{ form.question_77 }}{% endif %}
+                                {% if i == 78 %}{{ form.question_78 }}{% endif %}
+                                {% if i == 79 %}{{ form.question_79 }}{% endif %}
+                                {% if i == 80 %}{{ form.question_80 }}{% endif %}
+                                {% if i == 81 %}{{ form.question_81 }}{% endif %}
+                                {% if i == 82 %}{{ form.question_82 }}{% endif %}
+                                {% if i == 83 %}{{ form.question_83 }}{% endif %}
+                            </div>
+                            <div class="response-field" id="response-field-{{ i }}" style="display: none;">
+                                <label class="form-label">
+                                    Commentaire
+                                </label>
+                                {% if i == 1 %}{{ form.response_1 }}{% endif %}
+                                {% if i == 2 %}{{ form.response_2 }}{% endif %}
+                                {% if i == 3 %}{{ form.response_3 }}{% endif %}
+                                {% if i == 4 %}{{ form.response_4 }}{% endif %}
+                                {% if i == 5 %}{{ form.response_5 }}{% endif %}
+                                {% if i == 6 %}{{ form.response_6 }}{% endif %}
+                                {% if i == 7 %}{{ form.response_7 }}{% endif %}
+                                {% if i == 8 %}{{ form.response_8 }}{% endif %}
+                                {% if i == 9 %}{{ form.response_9 }}{% endif %}
+                                {% if i == 10 %}{{ form.response_10 }}{% endif %}
+                                {% if i == 11 %}{{ form.response_11 }}{% endif %}
+                                {% if i == 12 %}{{ form.response_12 }}{% endif %}
+                                {% if i == 13 %}{{ form.response_13 }}{% endif %}
+                                {% if i == 14 %}{{ form.response_14 }}{% endif %}
+                                {% if i == 15 %}{{ form.response_15 }}{% endif %}
+                                {% if i == 16 %}{{ form.response_16 }}{% endif %}
+                                {% if i == 17 %}{{ form.response_17 }}{% endif %}
+                                {% if i == 18 %}{{ form.response_18 }}{% endif %}
+                                {% if i == 19 %}{{ form.response_19 }}{% endif %}
+                                {% if i == 20 %}{{ form.response_20 }}{% endif %}
+                                {% if i == 21 %}{{ form.response_21 }}{% endif %}
+                                {% if i == 22 %}{{ form.response_22 }}{% endif %}
+                                {% if i == 23 %}{{ form.response_23 }}{% endif %}
+                                {% if i == 24 %}{{ form.response_24 }}{% endif %}
+                                {% if i == 25 %}{{ form.response_25 }}{% endif %}
+                                {% if i == 26 %}{{ form.response_26 }}{% endif %}
+                                {% if i == 27 %}{{ form.response_27 }}{% endif %}
+                                {% if i == 28 %}{{ form.response_28 }}{% endif %}
+                                {% if i == 29 %}{{ form.response_29 }}{% endif %}
+                                {% if i == 30 %}{{ form.response_30 }}{% endif %}
+                                {% if i == 31 %}{{ form.response_31 }}{% endif %}
+                                {% if i == 32 %}{{ form.response_32 }}{% endif %}
+                                {% if i == 33 %}{{ form.response_33 }}{% endif %}
+                                {% if i == 34 %}{{ form.response_34 }}{% endif %}
+                                {% if i == 35 %}{{ form.response_35 }}{% endif %}
+                                {% if i == 36 %}{{ form.response_36 }}{% endif %}
+                                {% if i == 37 %}{{ form.response_37 }}{% endif %}
+                                {% if i == 38 %}{{ form.response_38 }}{% endif %}
+                                {% if i == 39 %}{{ form.response_39 }}{% endif %}
+                                {% if i == 40 %}{{ form.response_40 }}{% endif %}
+                                {% if i == 41 %}{{ form.response_41 }}{% endif %}
+                                {% if i == 42 %}{{ form.response_42 }}{% endif %}
+                                {% if i == 43 %}{{ form.response_43 }}{% endif %}
+                                {% if i == 44 %}{{ form.response_44 }}{% endif %}
+                                {% if i == 45 %}{{ form.response_45 }}{% endif %}
+                                {% if i == 46 %}{{ form.response_46 }}{% endif %}
+                                {% if i == 47 %}{{ form.response_47 }}{% endif %}
+                                {% if i == 48 %}{{ form.response_48 }}{% endif %}
+                                {% if i == 49 %}{{ form.response_49 }}{% endif %}
+                                {% if i == 50 %}{{ form.response_50 }}{% endif %}
+                                {% if i == 51 %}{{ form.response_51 }}{% endif %}
+                                {% if i == 52 %}{{ form.response_52 }}{% endif %}
+                                {% if i == 53 %}{{ form.response_53 }}{% endif %}
+                                {% if i == 54 %}{{ form.response_54 }}{% endif %}
+                                {% if i == 55 %}{{ form.response_55 }}{% endif %}
+                                {% if i == 56 %}{{ form.response_56 }}{% endif %}
+                                {% if i == 57 %}{{ form.response_57 }}{% endif %}
+                                {% if i == 58 %}{{ form.response_58 }}{% endif %}
+                                {% if i == 59 %}{{ form.response_59 }}{% endif %}
+                                {% if i == 60 %}{{ form.response_60 }}{% endif %}
+                                {% if i == 61 %}{{ form.response_61 }}{% endif %}
+                                {% if i == 62 %}{{ form.response_62 }}{% endif %}
+                                {% if i == 63 %}{{ form.response_63 }}{% endif %}
+                                {% if i == 64 %}{{ form.response_64 }}{% endif %}
+                                {% if i == 65 %}{{ form.response_65 }}{% endif %}
+                                {% if i == 66 %}{{ form.response_66 }}{% endif %}
+                                {% if i == 67 %}{{ form.response_67 }}{% endif %}
+                                {% if i == 68 %}{{ form.response_68 }}{% endif %}
+                                {% if i == 69 %}{{ form.response_69 }}{% endif %}
+                                {% if i == 70 %}{{ form.response_70 }}{% endif %}
+                                {% if i == 71 %}{{ form.response_71 }}{% endif %}
+                                {% if i == 72 %}{{ form.response_72 }}{% endif %}
+                                {% if i == 73 %}{{ form.response_73 }}{% endif %}
+                                {% if i == 74 %}{{ form.response_74 }}{% endif %}
+                                {% if i == 75 %}{{ form.response_75 }}{% endif %}
+                                {% if i == 76 %}{{ form.response_76 }}{% endif %}
+                                {% if i == 77 %}{{ form.response_77 }}{% endif %}
+                                {% if i == 78 %}{{ form.response_78 }}{% endif %}
+                                {% if i == 79 %}{{ form.response_79 }}{% endif %}
+                                {% if i == 80 %}{{ form.response_80 }}{% endif %}
+                                {% if i == 81 %}{{ form.response_81 }}{% endif %}
+                                {% if i == 82 %}{{ form.response_82 }}{% endif %}
+                                {% if i == 83 %}{{ form.response_83 }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Étape 14: Finalisation -->
+        {% if step == 14 %}
+            <div class="container">
+                <div class="alert alert-success">
+                    <h5><i class="bi bi-check-circle"></i> Félicitations !</h5>
+                    <p>Vous avez terminé toutes les étapes du formulaire d'acceptation audit. Vous pouvez maintenant envoyer formulaire ou revenir aux étapes précédentes pour des modifications.</p>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Résumé de l'audit</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Client :</strong> {{ audit.client }}</li>
+                            <li><strong>Référence :</strong> {{ audit.reference }}</li>
+                            <li><strong>Exercice :</strong> {{ audit.exercice }}</li>
+                            <li><strong>Raison sociale :</strong> {{ audit.company_name }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Statut</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Créé le :</strong> {{ audit.date_added|date:"d/m/Y H:i" }}</li>
+                            <li><strong>Dernière modification :</strong> {{ audit.date_updated|date:"d/m/Y H:i" }}</li>
+                            <li><strong>Statut :</strong> 
+                                {% if audit.is_published %}
+                                    <span class="badge bg-success">Envoyé</span>
+                                {% else %}
+                                    <span class="badge bg-warning">En cours</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Boutons d'action -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between">
+                    <!-- Bouton Précédent -->
+                    {% if step > 1 %}
+                    <a href="#" class="btn btn-secondary" onclick="goToStep({{ step|add:'-1' }})">
+                        <i class="bi bi-arrow-left"></i> Précédent
+                    </a>
+                    {% else %}
+                    <div></div>
+                    {% endif %}
+                    
+                    <!-- Boutons Suivant/Enregistrer/Publication -->
+                    <div>
+                        {% if step == 1 %}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Créer
+                        </button>
+                        {% elif step == 14 %}
+                        <a href="{% url 'core:audit_detail' pk=audit.pk %}" class="btn btn-info">
+                            <i class="bi bi-info-circle"></i> Détails de l'audit
+                        </a>
+                        {% if not audit.is_published %}
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#publishAuditModal">
+                            <i class="bi bi-send"></i> Envoyer
+                        </button>
+                        {% endif %}
+                        {% else %}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Enregistrer
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Variables globales pour les compteurs
+    let shareholderCount = {{ formset.total_form_count|default:0 }};
+    let brancheCount = {{ formset.total_form_count|default:0 }};
+    let managerCount = {{ formset.total_form_count|default:0 }};
+    
+    // Fonction pour naviguer entre les étapes
+    function goToStep(stepNumber) {
+        {% if step == 1 %}
+        // Pour l'étape 1, on ne peut pas naviguer vers l'étape précédente
+        if (stepNumber < 1) return;
+        window.location.href = "{% url 'core:audit_step2' pk=0 %}".replace('0', '{{ audit.pk|default:0 }}');
+        {% else %}
+        const auditId = {{ audit.pk|default:0 }};
+        const stepUrls = {
+            1: "{% url 'core:create_audit_step1' %}",
+            2: "{% url 'core:audit_step2' pk=0 %}".replace('0', auditId),
+            3: "{% url 'core:audit_step3' pk=0 %}".replace('0', auditId),
+            4: "{% url 'core:audit_step4' pk=0 %}".replace('0', auditId),
+            5: "{% url 'core:audit_step5' pk=0 %}".replace('0', auditId),
+            6: "{% url 'core:audit_step6' pk=0 %}".replace('0', auditId),
+            7: "{% url 'core:audit_step7' pk=0 %}".replace('0', auditId),
+            8: "{% url 'core:audit_step8' pk=0 %}".replace('0', auditId),
+            9: "{% url 'core:audit_step9' pk=0 %}".replace('0', auditId),
+            10: "{% url 'core:audit_step10' pk=0 %}".replace('0', auditId),
+            11: "{% url 'core:audit_step11' pk=0 %}".replace('0', auditId),
+            12: "{% url 'core:audit_step12' pk=0 %}".replace('0', auditId),
+            13: "{% url 'core:audit_step13' pk=0 %}".replace('0', auditId),
+            14: "{% url 'core:audit_step14' pk=0 %}".replace('0', auditId)
+        };
+        
+        if (stepUrls[stepNumber]) {
+            window.location.href = stepUrls[stepNumber];
+        }
+        {% endif %}
+    }
+
+    // Fonctions pour les actionnaires (étape 4)
+    function addShareholder() {
+        const container = document.getElementById('shareholders-container');
+        const totalForms = document.getElementById('id_sharehol-TOTAL_FORMS');
+        
+        const newForm = document.createElement('div');
+        newForm.className = 'shareholder-form row mb-3';
+        newForm.innerHTML = `
+            <div class="col-md-3">
+                <label class="form-label">Identité</label>
+                <input type="text" name="sharehol-${shareholderCount}-identity" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Quantité détenue</label>
+                <input type="number" name="sharehol-${shareholderCount}-quantity_held" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">% détenu</label>
+                <input type="number" name="sharehol-${shareholderCount}-percentage_held" class="form-control" step="0.01">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Quantité vote</label>
+                <input type="number" name="sharehol-${shareholderCount}-quantity_vote" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">% vote</label>
+                <input type="number" name="sharehol-${shareholderCount}-percentage_vote" class="form-control" step="0.01">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeShareholder(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(newForm);
+        shareholderCount++;
+        totalForms.value = shareholderCount;
+    }
+    
+    function removeShareholder(button) {
+        button.closest('.shareholder-form').remove();
+        shareholderCount--;
+        document.getElementById('id_sharehol-TOTAL_FORMS').value = shareholderCount;
+    }
+    
+    // Fonctions pour les filiales (étape 5)
+    function addBranche() {
+        const container = document.getElementById('branches-container');
+        const totalForms = document.getElementById('id_branche-TOTAL_FORMS');
+        
+        const newForm = document.createElement('div');
+        newForm.className = 'branche-form row mb-3';
+        newForm.innerHTML = `
+            <div class="col-md-3">
+                <label class="form-label">Identité</label>
+                <input type="text" name="branche-${brancheCount}-identity" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Nationalité</label>
+                <input type="text" name="branche-${brancheCount}-nationality" class="form-control" maxlength="100">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">CAC/Auditeur</label>
+                <input type="text" name="branche-${brancheCount}-cac_auditor" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">% détention</label>
+                <input type="number" name="branche-${brancheCount}-ownership_percentage" class="form-control" step="0.01">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">% contrôle</label>
+                <input type="number" name="branche-${brancheCount}-control_percentage" class="form-control" step="0.01">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeBranche(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(newForm);
+        brancheCount++;
+        totalForms.value = brancheCount;
+    }
+    
+    function removeBranche(button) {
+        button.closest('.branche-form').remove();
+        brancheCount--;
+        document.getElementById('id_branche-TOTAL_FORMS').value = brancheCount;
+    }
+    
+    // Fonctions pour les dirigeants (étape 6)
+    function addManager() {
+        const container = document.getElementById('managers-container');
+        const totalForms = document.getElementById('id_manager-TOTAL_FORMS');
+        
+        const newForm = document.createElement('div');
+        newForm.className = 'manager-form row mb-3';
+        newForm.innerHTML = `
+            <div class="col-md-4">
+                <label class="form-label">Nom</label>
+                <input type="text" name="manager-${managerCount}-name" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Poste</label>
+                <input type="text" name="manager-${managerCount}-position" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Expérience</label>
+                <input type="text" name="manager-${managerCount}-experience" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeManager(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(newForm);
+        managerCount++;
+        totalForms.value = managerCount;
+    }
+    
+    function removeManager(button) {
+        button.closest('.manager-form').remove();
+        managerCount--;
+        document.getElementById('id_manager-TOTAL_FORMS').value = managerCount;
+    }
+
+    // Fonction pour gérer l'affichage des champs de réponse
+    function toggleResponseField(questionNumber, selectedValue) {
+        const responseField = document.getElementById(`response-field-${questionNumber}`);
+        const responseTextarea = responseField.querySelector('textarea');
+        
+        // Logique pour les questions 1-22 : afficher si "Oui"
+        if (questionNumber >= 1 && questionNumber <= 22) {
+            if (selectedValue === 'yes') {
+                responseField.style.display = 'block';
+                if (responseTextarea) {
+                    responseTextarea.setAttribute('required', 'required');
+                }
+            } else {
+                responseField.style.display = 'none';
+                if (responseTextarea) {
+                    responseTextarea.removeAttribute('required');
+                    responseTextarea.value = ''; // Vider le champ si masqué
+                }
+            }
+        }
+        // Logique pour les questions 23-39 : afficher si "Non"
+        else if (questionNumber >= 23 && questionNumber <= 39) {
+            if (selectedValue === 'no') {
+                responseField.style.display = 'block';
+                if (responseTextarea) {
+                    responseTextarea.setAttribute('required', 'required');
+                }
+            } else {
+                responseField.style.display = 'none';
+                if (responseTextarea) {
+                    responseTextarea.removeAttribute('required');
+                    responseTextarea.value = ''; // Vider le champ si masqué
+                }
+            }
+        }
+        // Logique pour les questions 40-46 : afficher si "Oui"
+        else if (questionNumber >= 40 && questionNumber <= 46) {
+            if (selectedValue === 'yes') {
+                responseField.style.display = 'block';
+                if (responseTextarea) {
+                    responseTextarea.setAttribute('required', 'required');
+                }
+            } else {
+                responseField.style.display = 'none';
+                if (responseTextarea) {
+                    responseTextarea.removeAttribute('required');
+                    responseTextarea.value = ''; // Vider le champ si masqué
+                }
+            }
+        }
+        // Logique pour les questions 47-49 : afficher si "Oui"
+        else if (questionNumber >= 47 && questionNumber <= 49) {
+            if (selectedValue === 'yes') {
+                responseField.style.display = 'block';
+                if (responseTextarea) {
+                    responseTextarea.setAttribute('required', 'required');
+                }
+            } else {
+                responseField.style.display = 'none';
+                if (responseTextarea) {
+                    responseTextarea.removeAttribute('required');
+                    responseTextarea.value = ''; // Vider le champ si masqué
+                }
+            }
+        }
+        // Logique pour les questions 50-60 : afficher si "Oui"
+        else if (questionNumber >= 50 && questionNumber <= 60) {
+            if (selectedValue === 'yes') {
+                responseField.style.display = 'block';
+                if (responseTextarea) {
+                    responseTextarea.setAttribute('required', 'required');
+                }
+            } else {
+                responseField.style.display = 'none';
+                if (responseTextarea) {
+                    responseTextarea.removeAttribute('required');
+                    responseTextarea.value = ''; // Vider le champ si masqué
+                }
+            }
+        }
+        // Logique pour les questions 61-77 : afficher si "Oui"
+        else if (questionNumber >= 61 && questionNumber <= 77) {
+            if (selectedValue === 'yes') {
+                responseField.style.display = 'block';
+                if (responseTextarea) {
+                    responseTextarea.setAttribute('required', 'required');
+                }
+            } else {
+                responseField.style.display = 'none';
+                if (responseTextarea) {
+                    responseTextarea.removeAttribute('required');
+                    responseTextarea.value = ''; // Vider le champ si masqué
+                }
+            }
+        }
+        // Logique pour les questions 78-83 : afficher si "Oui"
+        else if (questionNumber >= 78 && questionNumber <= 83) {
+            if (selectedValue === 'yes') {
+                responseField.style.display = 'block';
+                if (responseTextarea) {
+                    responseTextarea.setAttribute('required', 'required');
+                }
+            } else {
+                responseField.style.display = 'none';
+                if (responseTextarea) {
+                    responseTextarea.removeAttribute('required');
+                    responseTextarea.value = ''; // Vider le champ si masqué
+                }
+            }
+        }
+        // Pour les autres questions (84+), toujours afficher
+        else {
+            responseField.style.display = 'block';
+            if (responseTextarea) {
+                responseTextarea.removeAttribute('required');
+            }
+        }
+    }
+
+    // Fonction pour gérer l'affichage conditionnel des champs de l'étape 3
+    function toggleConditionalFields() {
+        // Gérer le champ cocac_name
+        const hasCocacSelect = document.getElementById('id_has_cocac');
+        const cocacNameField = document.getElementById('cocac-name-field');
+        
+        if (hasCocacSelect && cocacNameField) {
+            const hasCocacValue = hasCocacSelect.value;
+            
+            if (hasCocacValue === 'yes') {
+                cocacNameField.style.display = 'block';
+                const cocacNameInput = cocacNameField.querySelector('input');
+                if (cocacNameInput) {
+                    cocacNameInput.setAttribute('required', 'required');
+                }
+            } else {
+                cocacNameField.style.display = 'none';
+                const cocacNameInput = cocacNameField.querySelector('input');
+                if (cocacNameInput) {
+                    cocacNameInput.removeAttribute('required');
+                    cocacNameInput.value = '';
+                }
+            }
+        }
+        
+        // Gérer le champ component_audit_name
+        const isComponentAuditSelect = document.getElementById('id_is_component_audit');
+        const componentAuditNameField = document.getElementById('component-audit-name-field');
+        
+        if (isComponentAuditSelect && componentAuditNameField) {
+            const isComponentAuditValue = isComponentAuditSelect.value;
+            
+            if (isComponentAuditValue === 'yes') {
+                componentAuditNameField.style.display = 'block';
+                const componentAuditNameInput = componentAuditNameField.querySelector('input');
+                if (componentAuditNameInput) {
+                    componentAuditNameInput.setAttribute('required', 'required');
+                }
+            } else {
+                componentAuditNameField.style.display = 'none';
+                const componentAuditNameInput = componentAuditNameField.querySelector('input');
+                if (componentAuditNameInput) {
+                    componentAuditNameInput.removeAttribute('required');
+                    componentAuditNameInput.value = '';
+                }
+            }
+        }
+        
+        // Gérer le champ independent_review_name
+        const hasIndependentReviewSelect = document.getElementById('id_has_independent_review');
+        const independentReviewNameField = document.getElementById('independent-review-name-field');
+        
+        if (hasIndependentReviewSelect && independentReviewNameField) {
+            const hasIndependentReviewValue = hasIndependentReviewSelect.value;
+            
+            if (hasIndependentReviewValue === 'yes') {
+                independentReviewNameField.style.display = 'block';
+                const independentReviewNameInput = independentReviewNameField.querySelector('input');
+                if (independentReviewNameInput) {
+                    independentReviewNameInput.setAttribute('required', 'required');
+                }
+            } else {
+                independentReviewNameField.style.display = 'none';
+                const independentReviewNameInput = independentReviewNameField.querySelector('input');
+                if (independentReviewNameInput) {
+                    independentReviewNameInput.removeAttribute('required');
+                    independentReviewNameInput.value = '';
+                }
+            }
+        }
+    }
+
+    // Initialiser les événements pour les questions d'audit (étapes 7-14)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Attacher les événements aux selects des questions (1-83)
+        for (let i = 1; i <= 83; i++) {
+            const questionSelect = document.getElementById(`id_question_${i}`);
+            if (questionSelect) {
+                // Vérifier la valeur initiale
+                toggleResponseField(i, questionSelect.value);
+                
+                // Attacher l'événement de changement
+                questionSelect.addEventListener('change', function() {
+                    toggleResponseField(i, this.value);
+                });
+            }
+        }
+        
+        // Gérer les champs conditionnels de l'étape 3
+        toggleConditionalFields();
+        
+        // Attacher les événements pour l'étape 3
+        const hasCocacSelect = document.getElementById('id_has_cocac');
+        if (hasCocacSelect) {
+            hasCocacSelect.addEventListener('change', toggleConditionalFields);
+        }
+        
+        const isComponentAuditSelect = document.getElementById('id_is_component_audit');
+        if (isComponentAuditSelect) {
+            isComponentAuditSelect.addEventListener('change', toggleConditionalFields);
+        }
+        
+        const hasIndependentReviewSelect = document.getElementById('id_has_independent_review');
+        if (hasIndependentReviewSelect) {
+            hasIndependentReviewSelect.addEventListener('change', toggleConditionalFields);
+        }
+    });
+</script>
+
+<!-- Modal pour publier l'audit (Étape 14) -->
+{% if step == 14 and not audit.is_published %}
+<div class="modal fade" id="publishAuditModal" tabindex="-1" aria-labelledby="publishAuditModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="publishAuditModalLabel">
+                    <i class="bi bi-send"></i> Envoyer l'audit
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'core:audit_step14' pk=audit.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="publish" value="1">
+                <div class="modal-body">
+                    <p>
+                        Le formulaire sera envoyé et une notification par email sera envoyée au collaborateur sélectionné pour effectuer la revue.
+                    </p>
+                    <div class="mb-3">
+                        <label for="recipient_id_step14" class="form-label">
+                            <strong>Collaborateur <span class="text-danger">*</span></strong>
+                        </label>
+                        <select class="form-select" id="recipient_id_step14" name="recipient_id" required>
+                            <option value="">-- Sélectionner un destinataire --</option>
+                            {% for profile in audit_profiles %}
+                                <option value="{{ profile.pk }}">
+                                    {{ profile.user.get_full_name|default:profile.user.username }}{% if profile.statut %} - {{ profile.get_statut_display }}{% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Sélectionnez un membre du département Audit</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message_step14" class="form-label">
+                            <strong>Message (optionnel)</strong>
+                        </label>
+                        <textarea class="form-control" id="message_step14" name="message" rows="4" placeholder="Ajoutez un message pour le collaborateur..."></textarea>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> <strong>NB :</strong> Une fois envoyé, le formulaire ne pourra plus être modifié.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-send"></i> Envoyer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+// Fonction pour confirmer et supprimer un actionnaire existant
+function confirmDeleteShareholder(shareholderId, button) {
+    Swal.fire({
+        title: 'Êtes-vous sûr ?',
+        text: "Vous ne pourrez pas annuler cette action !",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Oui, supprimer !',
+        cancelButtonText: 'Annuler'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteShareholderAJAX(shareholderId, button);
+        }
+    });
+}
+
+// Fonction AJAX pour supprimer un actionnaire
+function deleteShareholderAJAX(shareholderId, button) {
+    const url = "{% url 'core:delete_shareholder' pk=0 %}".replace('0', shareholderId);
+    $.ajax({
+        url: url,
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Supprimé !',
+                    text: response.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                
+                // Supprimer visuellement la ligne
+                $(button).closest('.shareholder-form').fadeOut(300, function() {
+                    $(this).remove();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur !',
+                    text: response.error || 'Une erreur est survenue'
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur !',
+                text: 'Une erreur est survenue lors de la suppression'
+            });
+        }
+    });
+}
+
+// Fonction pour confirmer et supprimer une filiale existante
+function confirmDeleteBranche(brancheId, button) {
+    Swal.fire({
+        title: 'Êtes-vous sûr ?',
+        text: "Vous ne pourrez pas annuler cette action !",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Oui, supprimer !',
+        cancelButtonText: 'Annuler'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteBrancheAJAX(brancheId, button);
+        }
+    });
+}
+
+// Fonction AJAX pour supprimer une filiale
+function deleteBrancheAJAX(brancheId, button) {
+    const url = "{% url 'core:delete_branche' pk=0 %}".replace('0', brancheId);
+    $.ajax({
+        url: url,
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Supprimé !',
+                    text: response.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                
+                // Supprimer visuellement la ligne
+                $(button).closest('.branche-form').fadeOut(300, function() {
+                    $(this).remove();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur !',
+                    text: response.error || 'Une erreur est survenue'
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur !',
+                text: 'Une erreur est survenue lors de la suppression'
+            });
+        }
+    });
+}
+
+// Fonction pour confirmer et supprimer un dirigeant existant
+function confirmDeleteManager(managerId, button) {
+    Swal.fire({
+        title: 'Êtes-vous sûr ?',
+        text: "Vous ne pourrez pas annuler cette action !",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Oui, supprimer !',
+        cancelButtonText: 'Annuler'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteManagerAJAX(managerId, button);
+        }
+    });
+}
+
+// Fonction AJAX pour supprimer un dirigeant
+function deleteManagerAJAX(managerId, button) {
+    const url = "{% url 'core:delete_manager' pk=0 %}".replace('0', managerId);
+    $.ajax({
+        url: url,
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Supprimé !',
+                    text: response.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                
+                // Supprimer visuellement la ligne
+                $(button).closest('.manager-form').fadeOut(300, function() {
+                    $(this).remove();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur !',
+                    text: response.error || 'Une erreur est survenue'
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur !',
+                text: 'Une erreur est survenue lors de la suppression'
+            });
+        }
+    });
+}
+</script>
+{% endblock %}

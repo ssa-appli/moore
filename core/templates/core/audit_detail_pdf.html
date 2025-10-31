@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Audit {{ audit.reference }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        
+        * {
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            font-size: 10pt;
+            line-height: 1.4;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        
+        h1 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 10px 0;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+        }
+        
+        h2 {
+            font-size: 12pt;
+            font-weight: bold;
+            margin: 8px 0;
+            text-transform: uppercase;
+        }
+        
+        h3 {
+            font-size: 11pt;
+            font-weight: bold;
+            margin: 6px 0;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 9pt;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        
+        table th, table td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: left;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        
+        table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        
+        p, span, div, label {
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        
+        .info-row {
+            margin: 5px 0;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        
+        .info-row span {
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+
+        .info-row span {
+            font-weight: bold;
+        }
+        
+        .label {
+            /* font-weight: bold; */
+            display: inline-block;
+            min-width: 150px;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        .info-row span.label {
+            font-weight: normal;
+        }
+        
+        .question-item {
+            margin: 15px 0;
+            padding: 4px 0;
+            page-break-inside: avoid;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        
+        .question-text {
+            font-weight: bold;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        
+        .response {
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        
+        .comment {
+            font-style: italic;
+            font-size: 9pt;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>ACCEPTATION NOUVEAU MANDAT</h1>
+    
+    <div class="info-row">
+        <span class="label">Référence :</span>
+        <span>{{ audit.reference }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Client :</span>
+        <span>{{ audit.client }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Exercice :</span>
+        <span>{{ audit.exercice }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Fait par :</span>
+        <span>{{ audit.done_by.first_name }} {{ audit.done_by.last_name }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Fait le :</span>
+        <span>{{ audit.date_added|date:"d/m/Y" }}</span>
+    </div>
+    
+    <h2 style="margin-top: 20px;">I. Prise de connaissance de l'entité </h2>
+    
+    <h3>I.1 Informations sur l'entité </h3>
+    <div class="info-row">
+        <span class="label">Raison sociale :</span>
+        <span>{{ audit.company_name|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Date de clôture :</span>
+        <span>{{ audit.closing_date|date:"d/m/Y"|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Forme juridique (de l'entité) :</span>
+        <span>{{ audit.legal_form|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Nom du groupe :</span>
+        <span>{{ audit.group_name|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">EIP (O/N) :</span>
+        <span>{% if audit.is_eip == 'yes' %}OUI{% elif audit.is_eip == 'no' %}NON{% else %}-{% endif %}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Si entité cotée, bourse(s) de cotation :</span>
+        <span>{{ audit.stock_exchange|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Pays dans lesquels opère l'entité :</span>
+        <span>{{ audit.countries_operated|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Décrire la nature des activités et la taille de l'entité (par exemple secteur d'activité, produits ou services, principaux clients, principaux fournisseurs) :</span>
+        <span>{{ audit.business_description|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Si l'entité a moins de cinq ans, indiquer l'année de démarrage de l'activité :</span>
+        <span>{{ audit.start_year|default:"-" }}</span>
+    </div>
+    
+    <h3>I.2 Informations sur la mission </h3>
+    <div class="info-row">
+        <span class="label">Origine du contact :</span>
+        <span>{{ audit.contact_origin|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Nature de la mission :</span>
+        <span>{{ audit.mission_nature|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">S'agit -il d'un Co-CAC ? si oui indiquer le nom du co-CAC :</span>
+        <span>{% if audit.has_cocac == 'yes' %}OUI{% elif audit.has_cocac == 'no' %}NON{% else %}-{% endif %}</span>
+        {% if audit.cocac_name %} - {{ audit.cocac_name }}{% endif %}
+    </div>
+    <div class="info-row">
+        <span class="label">S'agit-il de l'audit d'un composant ? Si oui nom de l'auditeur du groupe :</span>
+        <span>{% if audit.is_component_audit == 'yes' %}OUI{% elif audit.is_component_audit == 'no' %}NON{% else %}-{% endif %}</span>
+        {% if audit.component_audit_name %} - {{ audit.component_audit_name }}{% endif %}
+    </div>
+    <div class="info-row">
+        <span class="label">Honoraires totaux prévus (si possible) :</span>
+        <span>{{ audit.total_fees|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Le dossier répond-il aux critères de la revue indépendante ? Si oui le(s)quel(s) :</span>
+        <span>{% if audit.has_independent_review == 'yes' %}OUI{% elif audit.has_independent_review == 'no' %}NON{% else %}-{% endif %}</span>
+        {% if audit.independent_review_name %} - {{ audit.independent_review_name }}{% endif %}
+    </div>
+
+    <h2 style="margin-top: 20px;margin-bottom: 0px;">I.3. Informations sur l'actionnariat </h2>
+    {% if shareholders %}
+        <table style="margin-top: 0px;">
+            <thead>
+                <tr>
+                    <th>Identité</th>
+                    <th>Quantité détenue</th>
+                    <th>% détenu</th>
+                    <th>Quantité vote</th>
+                    <th>% vote</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for shareholder in shareholders %}
+                <tr>
+                    <td>{{ shareholder.identity }}</td>
+                    <td>{{ shareholder.quantity_held }}</td>
+                    <td>{{ shareholder.percentage_held }}%</td>
+                    <td>{{ shareholder.quantity_vote }}</td>
+                    <td>{{ shareholder.percentage_vote }}%</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td><strong>TOTAL</strong></td>
+                    <td><strong>{{ total_quantity_held }}</strong></td>
+                    <td><strong>{{ total_percentage_held }}%</strong></td>
+                    <td><strong>{{ total_quantity_vote }}</strong></td>
+                    <td><strong>{{ total_percentage_vote }}%</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucun actionnaire renseigné.</p>
+    {% endif %}
+    
+    <h2 style="margin-top: 30px;margin-bottom: 0px;">I.4. Informations sur les filiales</h2>
+    {% if branches %}
+        <table style="margin-top: 0px;">
+            <thead>
+                <tr>
+                    <th>Identité</th>
+                    <th>Nationalité</th>
+                    <th>CAC/Auditeur</th>
+                    <th>% détention</th>
+                    <th>% contrôle</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for branch in branches %}
+                <tr>
+                    <td>{{ branch.identity }}</td>
+                    <td>{{ branch.nationality }}</td>
+                    <td>{{ branch.cac_auditor }}</td>
+                    <td>{{ branch.ownership_percentage }}%</td>
+                    <td>{{ branch.control_percentage }}%</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="2"><strong>TOTAL</strong></td>
+                    <td><strong>{{ total_cac_auditor }}</strong></td>
+                    <td><strong>{{ total_ownership_percentage }}%</strong></td>
+                    <td><strong>{{ total_control_percentage }}%</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucune filiale renseignée.</p>
+    {% endif %}
+    
+    <h2 style="margin-top: 30px;margin-bottom: 0px;">I.5. Informations sur les administrateurs et dirigeants</h2>
+    {% if managers %}
+        <table style="margin-top: 0px;">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Poste</th>
+                    <th>Expérience</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for manager in managers %}
+                <tr>
+                    <td>{{ manager.name }}</td>
+                    <td>{{ manager.position }}</td>
+                    <td>{{ manager.experience }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucun dirigeant renseigné.</p>
+    {% endif %}
+    
+    <h2 style="margin-top: 30px;">II. Indépendance</h2>
+    {% for q in questions_data %}
+        {% if q.number <= 22 %}
+            <div class="question-item" style="margin-bottom: 20px;">
+                <div class="question-text" style="margin-bottom: 0px;margin-top: 0px;">{{ q.verbose_name }}</div>
+                <div class="response" {% if q.response %}style="margin-bottom: 0px;margin-top: 0px;" {% else %}style="margin-top: 0px;"{% endif %}><u>Réponse</u> : {% if q.value == 'yes' %}<span style="color: green;">OUI</span>{% elif q.value == 'no' %}<span style="color: #de1422;">NON</span>{% else %}-{% endif %}</div>
+                {% if q.response %}<div class="comment" style="margin-top: 0px;"><u>Commentaire</u> : {{ q.response }}</div>{% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <h2 style="margin-top: 30px; margin-bottom: 0px;">III. Acceptation du client</h2>
+    <h3 style="margin-top: 0px;">I.6. Identification du client</h3>
+    {% for q in questions_data %}
+        {% if q.number >= 23 and q.number <= 39 %}
+            <div class="question-item" style="margin-bottom: 20px;">
+                <div class="question-text" style="margin-bottom: 0px;margin-top: 0px;">{{ q.verbose_name }}</div>
+                <div class="response" {% if q.response %}style="margin-bottom: 0px;margin-top: 0px;" {% else %}style="margin-top: 0px;"{% endif %}><u>Réponse</u> : {% if q.value == 'yes' %}<span style="color: green;">OUI</span>{% elif q.value == 'no' %}<span style="color: #de1422;">NON</span>{% else %}-{% endif %}</div>
+                {% if q.response %}<div class="comment" style="margin-top: 0px;"><u>Commentaire</u> : {{ q.response }}</div>{% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <h3>I.7. Prise en compte de l'intégrité du client</h3>
+    {% for q in questions_data %}
+        {% if q.number >= 40 and q.number <= 46 %}
+            <div class="question-item" style="margin-bottom: 20px;">
+                <div class="question-text" style="margin-bottom: 0px;margin-top: 0px;">{{ q.verbose_name }}</div>
+                <div class="response" {% if q.response %}style="margin-bottom: 0px;margin-top: 0px;" {% else %}style="margin-top: 0px;"{% endif %}><u>Réponse</u> : {% if q.value == 'yes' %}<span style="color: green;">OUI</span>{% elif q.value == 'no' %}<span style="color: #de1422;">NON</span>{% else %}-{% endif %}</div>
+                {% if q.response %}<div class="comment" style="margin-top: 0px;"><u>Commentaire</u> : {{ q.response }}</div>{% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <h3>I.8. Pratique des affaires</h3>
+    {% for q in questions_data %}
+        {% if q.number >= 47 and q.number <= 49 %}
+            <div class="question-item" style="margin-bottom: 20px;">
+                <div class="question-text" style="margin-bottom: 0px;margin-top: 0px;">{{ q.verbose_name }}</div>
+                <div class="response" {% if q.response %}style="margin-bottom: 0px;margin-top: 0px;" {% else %}style="margin-top: 0px;"{% endif %}><u>Réponse</u> : {% if q.value == 'yes' %}<span style="color: green;">OUI</span>{% elif q.value == 'no' %}<span style="color: #de1422;">NON</span>{% else %}-{% endif %}</div>
+                {% if q.response %}<div class="comment" style="margin-top: 0px;"><u>Commentaire</u> : {{ q.response }}</div>{% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <h2 style="margin-top: 30px; margin-bottom: 0px;">IV. Acceptation de la mission</h2>
+    <h3 style="margin-top: 0px;">IV.1. Procédure de nomination</h3>
+    {% for q in questions_data %}
+        {% if q.number >= 50 and q.number <= 60 %}
+            <div class="question-item" style="margin-bottom: 20px;">
+                <div class="question-text" style="margin-bottom: 0px;margin-top: 0px;">{{ q.verbose_name }}</div>
+                <div class="response" {% if q.response %}style="margin-bottom: 0px;margin-top: 0px;" {% else %}style="margin-top: 0px;"{% endif %}><u>Réponse</u> : {% if q.value == 'yes' %}<span style="color: green;">OUI</span>{% elif q.value == 'no' %}<span style="color: #de1422;">NON</span>{% else %}-{% endif %}</div>
+                {% if q.response %}<div class="comment" style="margin-top: 0px;"><u>Commentaire</u> : {{ q.response }}</div>{% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <h3>IV.2. Risques liés à la mission</h3>
+    {% for q in questions_data %}
+        {% if q.number >= 61 and q.number <= 77 %}
+            <div class="question-item" style="margin-bottom: 20px;">
+                <div class="question-text" style="margin-bottom: 0px;margin-top: 0px;">{{ q.verbose_name }}</div>
+                <div class="response" {% if q.response %}style="margin-bottom: 0px;margin-top: 0px;" {% else %}style="margin-top: 0px;"{% endif %}><u>Réponse</u> : {% if q.value == 'yes' %}<span style="color: green;">OUI</span>{% elif q.value == 'no' %}<span style="color: #de1422;">NON</span>{% else %}-{% endif %}</div>
+                {% if q.response %}<div class="comment" style="margin-top: 0px;"><u>Commentaire</u> : {{ q.response }}</div>{% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <h3>IV.3. Services, Ressources et compétences du cabinet</h3>
+    {% for q in questions_data %}
+        {% if q.number >= 78 and q.number <= 82 %}
+            <div class="question-item" style="margin-bottom: 20px;">
+                <div class="question-text" style="margin-bottom: 0px;margin-top: 0px;">{{ q.verbose_name }}</div>
+                <div class="response" {% if q.response %}style="margin-bottom: 0px;margin-top: 0px;" {% else %}style="margin-top: 0px;"{% endif %}><u>Réponse</u> : {% if q.value == 'yes' %}<span style="color: green;">OUI</span>{% elif q.value == 'no' %}<span style="color: #de1422;">NON</span>{% else %}-{% endif %}</div>
+                {% if q.response %}<div class="comment" style="margin-top: 0px;"><u>Commentaire</u> : {{ q.response }}</div>{% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    {% if audit.is_reviewed %}
+    <h2 style="margin-top: 30px;">V. CONCLUSION</h2>
+
+    <div class="info-row">
+        <span class="label">Envoyé par :</span>
+        <span>
+            {% if audit.done_by %}
+                {{ audit.done_by.first_name }} {{ audit.done_by.last_name }}
+            {% else %}-{% endif %}
+        </span>
+    </div>
+    <div class="info-row">
+        <span class="label">Date d'envoi :</span>
+        <span>{{ audit.date_published|date:"d/m/Y"|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Révisé par :</span>
+        <span>
+            {% if audit.reviewed_by %}
+                {{ audit.reviewed_by.first_name }} {{ audit.reviewed_by.last_name }}
+            {% else %}-{% endif %}
+        </span>
+    </div>
+    <div class="info-row">
+        <span class="label">Date de révision :</span>
+        <span>{{ audit.reviewed_at|date:"d/m/Y"|default:"-" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Décision :</span>
+        <span>
+            {% if audit.accepte_mission == 'yes' %}Accepter la mission
+            {% elif audit.accepte_mission == 'no' %}Refuser la mission
+            {% else %}-{% endif %}
+        </span>
+    </div>
+    <div class="info-row">
+        <span class="label">Risque global :</span>
+        <span>
+            {% if audit.global_risk == 'low' %}Risque faible
+            {% elif audit.global_risk == 'medium' %}Risque modéré
+            {% elif audit.global_risk == 'high' %}Risque élevé
+            {% else %}-{% endif %}
+        </span>
+    </div>
+    <div class="info-row">
+        <span class="label">Vigilance de la diligence :</span>
+        <span>
+            {% if audit.diligence_risk == 'normal' %}Vigilance normale
+            {% elif audit.diligence_risk == 'enhanced' %}Vigilance renforcée
+            {% else %}-{% endif %}
+        </span>
+    </div>
+    {% if audit.conclusion_mission %}
+    <div class="info-row">
+        <span class="label">Conclusion :</span>
+        <span>{{ audit.conclusion_mission }}</span>
+    </div>
+    {% endif %}
+
+    {% if audit.is_signed and signature_base64 %}
+    <div class="info-row" style="margin-top: 30px;">
+        <span class="label">Signé par :</span>
+        <span>{{ audit.signed_by.first_name }} {{ audit.signed_by.last_name }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Signé le :</span>
+        <span>{{ audit.signed_at|date:"d/m/Y"|default:"-" }}</span>
+    </div>
+    <div class="info-row" style="margin-top: 30px;">
+        <span>
+            <img src="{{ signature_base64 }}" alt="Signature" style="height: 100px;">
+        </span>
+    </div>
+    {% endif %}
+    {% endif %}
+    
+</body>
+</html>

@@ -1,0 +1,440 @@
+{% extends 'base.html' %}
+
+{% block title %}Créer un Audit - Moore Sénégal{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="bi bi-plus-circle"></i> Créer un Nouvel Audit
+                </h1>
+                <a href="{% url 'core:audit_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" id="auditForm">
+        {% csrf_token %}
+        
+        <!-- Informations générales -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle"></i> Informations Générales
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.client.id_for_label }}" class="form-label">Client *</label>
+                        {{ form.client }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.reference.id_for_label }}" class="form-label">Référence *</label>
+                        {{ form.reference }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.exercice.id_for_label }}" class="form-label">Exercice *</label>
+                        {{ form.exercice }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.company_name.id_for_label }}" class="form-label">Raison sociale *</label>
+                        {{ form.company_name }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.closing_date.id_for_label }}" class="form-label">Date de clôture</label>
+                        {{ form.closing_date }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.legal_form.id_for_label }}" class="form-label">Forme juridique</label>
+                        {{ form.legal_form }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions d'audit -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-question-circle"></i> Questions d'Audit (1-20)
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for i in "12345678901234567890"|slice:":20" %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">Question {{ forloop.counter }}</h6>
+                                <div class="mb-2">
+                                    <label class="form-label">Réponse</label>
+                                    {% if forloop.counter == 1 %}{{ form.question_1 }}{% endif %}
+                                    {% if forloop.counter == 2 %}{{ form.question_2 }}{% endif %}
+                                    {% if forloop.counter == 3 %}{{ form.question_3 }}{% endif %}
+                                    {% if forloop.counter == 4 %}{{ form.question_4 }}{% endif %}
+                                    {% if forloop.counter == 5 %}{{ form.question_5 }}{% endif %}
+                                    {% if forloop.counter == 6 %}{{ form.question_6 }}{% endif %}
+                                    {% if forloop.counter == 7 %}{{ form.question_7 }}{% endif %}
+                                    {% if forloop.counter == 8 %}{{ form.question_8 }}{% endif %}
+                                    {% if forloop.counter == 9 %}{{ form.question_9 }}{% endif %}
+                                    {% if forloop.counter == 10 %}{{ form.question_10 }}{% endif %}
+                                    {% if forloop.counter == 11 %}{{ form.question_11 }}{% endif %}
+                                    {% if forloop.counter == 12 %}{{ form.question_12 }}{% endif %}
+                                    {% if forloop.counter == 13 %}{{ form.question_13 }}{% endif %}
+                                    {% if forloop.counter == 14 %}{{ form.question_14 }}{% endif %}
+                                    {% if forloop.counter == 15 %}{{ form.question_15 }}{% endif %}
+                                    {% if forloop.counter == 16 %}{{ form.question_16 }}{% endif %}
+                                    {% if forloop.counter == 17 %}{{ form.question_17 }}{% endif %}
+                                    {% if forloop.counter == 18 %}{{ form.question_18 }}{% endif %}
+                                    {% if forloop.counter == 19 %}{{ form.question_19 }}{% endif %}
+                                    {% if forloop.counter == 20 %}{{ form.question_20 }}{% endif %}
+                                </div>
+                                <div>
+                                    <label class="form-label">Commentaire</label>
+                                    {% if forloop.counter == 1 %}{{ form.response_1 }}{% endif %}
+                                    {% if forloop.counter == 2 %}{{ form.response_2 }}{% endif %}
+                                    {% if forloop.counter == 3 %}{{ form.response_3 }}{% endif %}
+                                    {% if forloop.counter == 4 %}{{ form.response_4 }}{% endif %}
+                                    {% if forloop.counter == 5 %}{{ form.response_5 }}{% endif %}
+                                    {% if forloop.counter == 6 %}{{ form.response_6 }}{% endif %}
+                                    {% if forloop.counter == 7 %}{{ form.response_7 }}{% endif %}
+                                    {% if forloop.counter == 8 %}{{ form.response_8 }}{% endif %}
+                                    {% if forloop.counter == 9 %}{{ form.response_9 }}{% endif %}
+                                    {% if forloop.counter == 10 %}{{ form.response_10 }}{% endif %}
+                                    {% if forloop.counter == 11 %}{{ form.response_11 }}{% endif %}
+                                    {% if forloop.counter == 12 %}{{ form.response_12 }}{% endif %}
+                                    {% if forloop.counter == 13 %}{{ form.response_13 }}{% endif %}
+                                    {% if forloop.counter == 14 %}{{ form.response_14 }}{% endif %}
+                                    {% if forloop.counter == 15 %}{{ form.response_15 }}{% endif %}
+                                    {% if forloop.counter == 16 %}{{ form.response_16 }}{% endif %}
+                                    {% if forloop.counter == 17 %}{{ form.response_17 }}{% endif %}
+                                    {% if forloop.counter == 18 %}{{ form.response_18 }}{% endif %}
+                                    {% if forloop.counter == 19 %}{{ form.response_19 }}{% endif %}
+                                    {% if forloop.counter == 20 %}{{ form.response_20 }}{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Actionnaires -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-people"></i> Actionnaires
+                </h5>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addShareholder()">
+                    <i class="bi bi-plus"></i> Ajouter
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="shareholders-container">
+                    {{ sharehol_formset.management_form }}
+                    {% for form in sharehol_formset %}
+                    <div class="shareholder-form row mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Identité</label>
+                            {{ form.identity }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Quantité détenue</label>
+                            {{ form.quantity_held }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">% détenu</label>
+                            {{ form.percentage_held }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Quantité vote</label>
+                            {{ form.quantity_vote }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">% vote</label>
+                            {{ form.percentage_vote }}
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeShareholder(this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Filiales -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-building"></i> Filiales
+                </h5>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addBranche()">
+                    <i class="bi bi-plus"></i> Ajouter
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="branches-container">
+                    {{ branche_formset.management_form }}
+                    {% for form in branche_formset %}
+                    <div class="branche-form row mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Identité</label>
+                            {{ form.identity }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Nationalité</label>
+                            {{ form.nationality }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">CAC/Auditeur</label>
+                            {{ form.cac_auditor }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">% détention</label>
+                            {{ form.ownership_percentage }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">% contrôle</label>
+                            {{ form.control_percentage }}
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeBranche(this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Dirigeants -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-badge"></i> Dirigeants
+                </h5>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addManager()">
+                    <i class="bi bi-plus"></i> Ajouter
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="managers-container">
+                    {{ manager_formset.management_form }}
+                    {% for form in manager_formset %}
+                    <div class="manager-form row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Nom</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Poste</label>
+                            {{ form.position }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Expérience</label>
+                            {{ form.experience }}
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeManager(this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'core:audit_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Créer l'Audit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    {% if audit and audit.is_signed %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-check2-circle"></i> Signature</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Signé par</label>
+                    <div>{{ audit.signed_by.get_full_name|default:audit.signed_by.username }}</div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Signé le</label>
+                    <div>{{ audit.signed_at|date:"d/m/Y"|default:"-" }}</div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Signature</label>
+                    {% if audit.senior_signature %}
+                        <div><img src="{{ audit.senior_signature.url }}" alt="Signature" style="height: 80px;"></div>
+                    {% else %}
+                        <div>-</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let shareholderCount = {{ sharehol_formset.total_form_count }};
+    let brancheCount = {{ branche_formset.total_form_count }};
+    let managerCount = {{ manager_formset.total_form_count }};
+
+    // Fonctions pour ajouter/supprimer des lignes d'actionnaires
+    function addShareholder() {
+        const container = document.getElementById('shareholders-container');
+        const totalForms = document.getElementById('id_sharehol-TOTAL_FORMS');
+        
+        // Créer une nouvelle ligne
+        const newForm = document.createElement('div');
+        newForm.className = 'shareholder-form row mb-3';
+        newForm.innerHTML = `
+            <div class="col-md-3">
+                <label class="form-label">Identité</label>
+                <input type="text" name="sharehol-${shareholderCount}-identity" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Quantité détenue</label>
+                <input type="number" name="sharehol-${shareholderCount}-quantity_held" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">% détenu</label>
+                <input type="number" name="sharehol-${shareholderCount}-percentage_held" class="form-control" step="0.01">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Quantité vote</label>
+                <input type="number" name="sharehol-${shareholderCount}-quantity_vote" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">% vote</label>
+                <input type="number" name="sharehol-${shareholderCount}-percentage_vote" class="form-control" step="0.01">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeShareholder(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(newForm);
+        shareholderCount++;
+        totalForms.value = shareholderCount;
+    }
+    
+    function removeShareholder(button) {
+        button.closest('.shareholder-form').remove();
+        shareholderCount--;
+        document.getElementById('id_sharehol-TOTAL_FORMS').value = shareholderCount;
+    }
+    
+    // Fonctions pour ajouter/supprimer des lignes de filiales
+    function addBranche() {
+        const container = document.getElementById('branches-container');
+        const totalForms = document.getElementById('id_branche-TOTAL_FORMS');
+        
+        const newForm = document.createElement('div');
+        newForm.className = 'branche-form row mb-3';
+        newForm.innerHTML = `
+            <div class="col-md-3">
+                <label class="form-label">Identité</label>
+                <input type="text" name="branche-${brancheCount}-identity" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Nationalité</label>
+                <input type="text" name="branche-${brancheCount}-nationality" class="form-control" maxlength="100">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">CAC/Auditeur</label>
+                <input type="text" name="branche-${brancheCount}-cac_auditor" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">% détention</label>
+                <input type="number" name="branche-${brancheCount}-ownership_percentage" class="form-control" step="0.01">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">% contrôle</label>
+                <input type="number" name="branche-${brancheCount}-control_percentage" class="form-control" step="0.01">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeBranche(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(newForm);
+        brancheCount++;
+        totalForms.value = brancheCount;
+    }
+    
+    function removeBranche(button) {
+        button.closest('.branche-form').remove();
+        brancheCount--;
+        document.getElementById('id_branche-TOTAL_FORMS').value = brancheCount;
+    }
+    
+    // Fonctions pour ajouter/supprimer des lignes de dirigeants
+    function addManager() {
+        const container = document.getElementById('managers-container');
+        const totalForms = document.getElementById('id_manager-TOTAL_FORMS');
+        
+        const newForm = document.createElement('div');
+        newForm.className = 'manager-form row mb-3';
+        newForm.innerHTML = `
+            <div class="col-md-4">
+                <label class="form-label">Nom</label>
+                <input type="text" name="manager-${managerCount}-name" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Poste</label>
+                <input type="text" name="manager-${managerCount}-position" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Expérience</label>
+                <input type="text" name="manager-${managerCount}-experience" class="form-control" maxlength="255">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeManager(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(newForm);
+        managerCount++;
+        totalForms.value = managerCount;
+    }
+    
+    function removeManager(button) {
+        button.closest('.manager-form').remove();
+        managerCount--;
+        document.getElementById('id_manager-TOTAL_FORMS').value = managerCount;
+    }
+</script>
+{% endblock %}

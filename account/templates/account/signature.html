@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ma Signature - Moore Sénégal{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Mise en page simple */
+.signature-wrap { max-width: 900px; margin: 16px auto; padding: 16px; background: #fff; }
+.signature-header { padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb; }
+.signature-header h2 { font-size: 20px; margin: 0; }
+.signature-canvas-container { border: 1px solid #e5e7eb; border-radius: 4px; background: #fafafa; padding: 8px; }
+.signature-actions { margin: 12px 0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.signature-preview { margin-top: 12px; padding-top: 10px; border-top: 1px solid #e5e7eb; text-align: center; }
+.navigation-actions { margin-top: 12px; display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="signature-container">
+                <div class="signature-header">
+                    <h2>
+                        <i class="bi bi-pen"></i> Ma Signature
+                    </h2>
+                </div>
+                <div class="signature-content">
+                    {% if profile and profile.signature %}
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle"></i>
+                            <strong>Signature existante</strong><br>
+                            Vous avez déjà une signature enregistrée. Vous pouvez la modifier ci-dessous.
+                        </div>
+                    {% endif %}
+                    
+                    <div class="signature-canvas-container">
+                        <div id="signature-root"></div>
+                    </div>
+                    
+                    <div class="signature-actions">
+                        <button type="button" id="resetSignature" class="btn btn-warning">
+                            <i class="bi bi-arrow-clockwise"></i> Effacer
+                        </button>
+                        <button type="button" id="saveSignature" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Sauvegarder
+                        </button>
+                    </div>
+                    
+                    <div class="signature-preview" id="signaturePreview" style="display: none;">
+                        <h5>Aperçu de votre signature :</h5>
+                        <img id="signatureImage" alt="Aperçu de la signature" />
+                    </div>
+                    
+                    <div class="navigation-actions">
+                        <a href="{% url 'account:profile' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Retour au profil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LemonadeJS Signature -->
+<script src="https://cdn.jsdelivr.net/npm/lemonadejs/dist/lemonade.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@lemonadejs/signature/dist/index.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const root = document.getElementById('signature-root');
+    const resetBtn = document.getElementById('resetSignature');
+    const saveBtn = document.getElementById('saveSignature');
+    const previewDiv = document.getElementById('signaturePreview');
+    const previewImg = document.getElementById('signatureImage');
+    
+    // Initialiser le composant de signature
+    const signatureComponent = Signature(root, {
+        width: 500,
+        height: 150,
+        instructions: "Veuillez signer dans la zone ci-dessus"
+    });
+    
+    // Bouton d'effacement
+    resetBtn.addEventListener('click', function() {
+        signatureComponent.value = [];
+        previewDiv.style.display = 'none';
+    });
+    
+    // Bouton de sauvegarde
+    saveBtn.addEventListener('click', function() {
+        const signatureData = signatureComponent.getImage();
+        
+        if (!signatureData) {
+            alert('Veuillez d\'abord créer une signature');
+            return;
+        }
+        
+        // Afficher l'aperçu
+        previewImg.src = signatureData;
+        previewDiv.style.display = 'block';
+        
+        // Sauvegarder via AJAX
+        fetch('{% url "account:save_signature" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: 'signature=' + encodeURIComponent(signatureData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Afficher un message de succès
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success';
+                alertDiv.innerHTML = '<i class="bi bi-check-circle"></i> <strong>Succès!</strong><br>' + data.message;
+                
+                // Remplacer les alertes existantes
+                const existingAlerts = document.querySelectorAll('.alert');
+                existingAlerts.forEach(alert => alert.remove());
+                
+                // Insérer la nouvelle alerte
+                const container = document.querySelector('.signature-content');
+                container.insertBefore(alertDiv, container.firstChild);
+                
+                // Faire défiler vers le haut
+                alertDiv.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('Erreur lors de la sauvegarde: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue lors de la sauvegarde');
+        });
+    });
+});
+</script>
+{% endblock %}

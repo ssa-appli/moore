@@ -1,0 +1,765 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Moore Sénégal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% if user.profile.status == 'collaborator' %}
+    <!-- Liste des audits de l'utilisateur -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="audits-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="bi bi-list-ul"></i> Mes missions d'acceptation
+                    </h2>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'core:create_audit_step1' %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle"></i> Ajouter
+                        </a>
+                        {% if user_audits_count > 6 %}
+                            <a href="{% url 'core:audit_list' %}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-eye"></i> Voir tous
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if user_audits %}
+                    <ul class="nav nav-tabs" id="userAuditsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-audits" type="button" role="tab" aria-controls="all-audits" aria-selected="true">Tous</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="drafts-tab" data-bs-toggle="tab" data-bs-target="#draft-audits" type="button" role="tab" aria-controls="draft-audits" aria-selected="false">Brouillon</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent-audits" type="button" role="tab" aria-controls="sent-audits" aria-selected="false">Envoyé</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content pt-3" id="userAuditsTabsContent">
+                        <div class="tab-pane fade show active" id="all-audits" role="tabpanel" aria-labelledby="all-tab">
+                            <div class="row">
+                                {% for audit in user_audits %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="audit-card {% if audit.is_published %}published-card{% else %}draft-card{% endif %}">
+                                            <div class="audit-header">
+                                                <h4 class="audit-title">{{ audit.reference }}</h4>
+                                                <span class="audit-status {% if audit.is_published %}published{% else %}draft{% endif %}">
+                                                    {% if audit.is_published and audit.is_reviewed and audit.is_signed %}
+                                                        Envoyé & Signé
+                                                    {% elif audit.is_published and audit.is_reviewed %}
+                                                        Envoyé & Révisé
+                                                    {% elif audit.is_published %}
+                                                        Envoyé
+                                                    {% else %}
+                                                        Brouillon
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                            <div class="audit-content">
+                                                <p class="audit-client">
+                                                    <i class="bi bi-building"></i> {{ audit.client }}
+                                                </p>
+                                                <p class="audit-exercice">
+                                                    <i class="bi bi-calendar"></i> Exercice {{ audit.exercice }}
+                                                </p>
+                                                <p class="audit-date">
+                                                    <i class="bi bi-clock"></i> {{ audit.date_added|date:"d F Y" }}
+                                                </p>
+                                            </div>
+                                            <div class="audit-actions">
+                                                <a href="{% url 'core:audit_detail' pk=audit.pk %}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-eye"></i> Voir
+                                                </a>
+                                                {% if not audit.is_published %}
+                                                    <a href="{% url 'core:audit_step2' pk=audit.pk %}" class="btn btn-outline-warning btn-sm">
+                                                        <i class="bi bi-pencil"></i> Modifier
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="draft-audits" role="tabpanel" aria-labelledby="drafts-tab">
+                            <div class="row">
+                                {% for audit in user_audits_drafts %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="audit-card draft-card">
+                                            <div class="audit-header">
+                                                <h4 class="audit-title">{{ audit.reference }}</h4>
+                                                <span class="audit-status draft">Brouillon</span>
+                                            </div>
+                                            <div class="audit-content">
+                                                <p class="audit-client">
+                                                    <i class="bi bi-building"></i> {{ audit.client }}
+                                                </p>
+                                                <p class="audit-exercice">
+                                                    <i class="bi bi-calendar"></i> Exercice {{ audit.exercice }}
+                                                </p>
+                                                <p class="audit-date">
+                                                    <i class="bi bi-clock"></i> {{ audit.date_added|date:"d F Y" }}
+                                                </p>
+                                            </div>
+                                            <div class="audit-actions">
+                                                <a href="{% url 'core:audit_detail' pk=audit.pk %}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-eye"></i> Voir
+                                                </a>
+                                                <a href="{% url 'core:audit_step2' pk=audit.pk %}" class="btn btn-outline-warning btn-sm">
+                                                    <i class="bi bi-pencil"></i> Modifier
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <p class="text-muted">Aucun brouillon.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="sent-audits" role="tabpanel" aria-labelledby="sent-tab">
+                            <div class="row">
+                                {% for audit in user_audits_sent %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="audit-card published-card">
+                                            <div class="audit-header">
+                                                <h4 class="audit-title">{{ audit.reference }}</h4>
+                                                <span class="audit-status published">Envoyé</span>
+                                            </div>
+                                            <div class="audit-content">
+                                                <p class="audit-client">
+                                                    <i class="bi bi-building"></i> {{ audit.client }}
+                                                </p>
+                                                <p class="audit-exercice">
+                                                    <i class="bi bi-calendar"></i> Exercice {{ audit.exercice }}
+                                                </p>
+                                                <p class="audit-date">
+                                                    <i class="bi bi-clock"></i> {{ audit.date_added|date:"d F Y" }}
+                                                </p>
+                                            </div>
+                                            <div class="audit-actions">
+                                                <a href="{% url 'core:audit_detail' pk=audit.pk %}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-eye"></i> Voir
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <p class="text-muted">Aucun audit envoyé.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="no-audits">
+                        <div class="no-audits-content">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <h3>Aucun audit créé</h3>
+                            <p>Vous n'avez pas encore créé d'audit. Commencez par créer votre premier audit.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Liste des audits à réviser -->
+    {% if user.profile.status == 'associate' %}
+    <div class="row">
+        <div class="col-12">
+            <div class="audits-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="bi bi-check-circle"></i> Missions d'acceptation à réviser
+                    </h2>
+                    {% if reviews_audits_count > 0 %}
+                        <span class="badge" style="background-color: #1B9DD9 !important;">{{ reviews_audits_count }}</span>
+                    {% endif %}
+                </div>
+
+                {% if reviews_audits_all %}
+                    <ul class="nav nav-tabs" id="reviewsAuditsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="rev-all-tab" data-bs-toggle="tab" data-bs-target="#rev-all" type="button" role="tab" aria-controls="rev-all" aria-selected="true">Tous</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="rev-pending-tab" data-bs-toggle="tab" data-bs-target="#rev-pending" type="button" role="tab" aria-controls="rev-pending" aria-selected="false">À réviser</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="rev-done-tab" data-bs-toggle="tab" data-bs-target="#rev-done" type="button" role="tab" aria-controls="rev-done" aria-selected="false">Révisés</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content pt-3" id="reviewsAuditsTabsContent">
+                        <!-- Tous -->
+                        <div class="tab-pane fade show active" id="rev-all" role="tabpanel" aria-labelledby="rev-all-tab">
+                            <div class="row">
+                                {% for audit in reviews_audits_all %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="audit-card review-card {% if audit.is_reviewed %}review-done-card{% else %}review-pending-card{% endif %}">
+                                            <div class="audit-header">
+                                                <h4 class="audit-title">{{ audit.reference }}</h4>
+                                                <span class="audit-status {% if audit.is_reviewed %}published{% else %}review-status{% endif %}">
+                                                    {% if audit.is_reviewed %}Révisé{% else %}<i class="bi bi-clock-history"></i> À réviser{% endif %}
+                                                </span>
+                                            </div>
+                                            <div class="audit-content">
+                                                <p class="audit-client">
+                                                    <i class="bi bi-building"></i> {{ audit.client }}
+                                                </p>
+                                                <p class="audit-exercice">
+                                                    <i class="bi bi-calendar"></i> Exercice {{ audit.exercice }}
+                                                </p>
+                                                <p class="audit-date">
+                                                    <i class="bi bi-person"></i> Créé par : {{ audit.done_by.get_full_name|default:audit.done_by.username }}
+                                                </p>
+                                                <p class="audit-date">
+                                                    <i class="bi bi-clock"></i> Envoyé le : {{ audit.date_published|date:"d F Y"|default:"-" }}
+                                                </p>
+                                            </div>
+                                            <div class="audit-actions">
+                                                <a href="{% url 'core:audit_detail' pk=audit.pk %}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-eye"></i> Voir
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <p class="text-muted">Aucun audit.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- À réviser (is_reviewed=False) -->
+                        <div class="tab-pane fade" id="rev-pending" role="tabpanel" aria-labelledby="rev-pending-tab">
+                            <div class="row">
+                                {% for audit in reviews_audits %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="audit-card review-card review-pending-card">
+                                            <div class="audit-header">
+                                                <h4 class="audit-title">{{ audit.reference }}</h4>
+                                                <span class="audit-status review-status"><i class="bi bi-clock-history"></i> À réviser</span>
+                                            </div>
+                                            <div class="audit-content">
+                                                <p class="audit-client">
+                                                    <i class="bi bi-building"></i> {{ audit.client }}
+                                                </p>
+                                                <p class="audit-exercice">
+                                                    <i class="bi bi-calendar"></i> Exercice {{ audit.exercice }}
+                                                </p>
+                                                <p class="audit-date">
+                                                    <i class="bi bi-person"></i> Créé par : {{ audit.done_by.get_full_name|default:audit.done_by.username }}
+                                                </p>
+                                                <p class="audit-date">
+                                                    <i class="bi bi-clock"></i> Envoyé le : {{ audit.date_published|date:"d F Y"|default:"-" }}
+                                                </p>
+                                            </div>
+                                            <div class="audit-actions">
+                                                <a href="{% url 'core:audit_detail' pk=audit.pk %}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-eye"></i> Voir
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <p class="text-muted">Aucun audit à réviser.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- Révisés (is_reviewed=True) -->
+                        <div class="tab-pane fade" id="rev-done" role="tabpanel" aria-labelledby="rev-done-tab">
+                            <div class="row">
+                                {% for audit in reviews_audits_done %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="audit-card review-card review-done-card">
+                                            <div class="audit-header">
+                                                <h4 class="audit-title">{{ audit.reference }}</h4>
+                                                <span class="audit-status published">Révisé</span>
+                                            </div>
+                                            <div class="audit-content">
+                                                <p class="audit-client">
+                                                    <i class="bi bi-building"></i> {{ audit.client }}
+                                                </p>
+                                                <p class="audit-exercice">
+                                                    <i class="bi bi-calendar"></i> Exercice {{ audit.exercice }}
+                                                </p>
+                                                <p class="audit-date">
+                                                    <i class="bi bi-person"></i> Créé par : {{ audit.done_by.get_full_name|default:audit.done_by.username }}
+                                                </p>
+                                                <p class="audit-date">
+                                                    <i class="bi bi-clock"></i> Envoyé le : {{ audit.date_published|date:"d F Y"|default:"-" }}
+                                                </p>
+                                            </div>
+                                            <div class="audit-actions">
+                                                <a href="{% url 'core:audit_detail' pk=audit.pk %}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-eye"></i> Voir
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <p class="text-muted">Aucun audit révisé.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="no-audits">
+                        <div class="no-audits-content">
+                            <i class="bi bi-check-circle"></i>
+                            <h3>Aucun audit à réviser</h3>
+                            <p>Vous n'avez pas d'audit en attente de révision.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Liste des audits à signer -->
+    {% if signed_audits_all %}
+    <div class="row">
+        <div class="col-12">
+            <div class="audits-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="bi bi-pen"></i> Missions d'acceptation à Signé
+                    </h2>
+                    <span class="badge" style="background-color: #1b9dd9 !important;">{{ signed_audits_count }}</span>
+                </div>
+
+                <!-- Tabs for signed audits -->
+                <ul class="nav nav-tabs" id="signedAuditsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="signed-all-tab" data-bs-toggle="tab" data-bs-target="#signed-all" type="button" role="tab" aria-controls="signed-all" aria-selected="true">Tous</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="signed-pending-tab" data-bs-toggle="tab" data-bs-target="#signed-pending" type="button" role="tab" aria-controls="signed-pending" aria-selected="false">À signer</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="signed-done-tab" data-bs-toggle="tab" data-bs-target="#signed-done" type="button" role="tab" aria-controls="signed-done" aria-selected="false">Signés</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content pt-3" id="signedAuditsTabsContent">
+                    <!-- Tous -->
+                    <div class="tab-pane fade show active" id="signed-all" role="tabpanel" aria-labelledby="signed-all-tab">
+                        <div class="row">
+                            {% for audit in signed_audits_all %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="audit-card signed-card {% if audit.is_signed %}signed-done-card{% else %}signed-pending-card{% endif %}">
+                                        <div class="audit-header">
+                                            <h4 class="audit-title">{{ audit.reference }}</h4>
+                                            <span class="audit-status {% if audit.is_signed %}published{% else %}signed-pending{% endif %}">
+                                                {% if audit.is_signed %}Signé{% else %}<i class="bi bi-pen"></i> À signer{% endif %}
+                                            </span>
+                                        </div>
+                                        <div class="audit-content">
+                                            <p class="audit-client">
+                                                <i class="bi bi-building"></i> {{ audit.client }}
+                                            </p>
+                                            <p class="audit-exercice">
+                                                <i class="bi bi-calendar"></i> Exercice {{ audit.exercice }}
+                                            </p>
+                                            <p class="audit-date">
+                                                <i class="bi bi-person"></i> Créé par : {{ audit.done_by.get_full_name|default:audit.done_by.username }}
+                                            </p>
+                                            <p class="audit-date">
+                                                <i class="bi bi-check-circle"></i> Révisé par : {{ audit.reviewed_by.get_full_name|default:audit.reviewed_by.username }}
+                                            </p>
+                                            <p class="audit-date">
+                                                <i class="bi bi-clock"></i> Révisé le : {{ audit.reviewed_at|date:"d/m/Y" }}
+                                            </p>
+                                            {% if audit.accepte_mission %}
+                                            <p class="audit-date">
+                                                <i class="bi bi-file-check"></i> Décision : 
+                                                {% if audit.accepte_mission == 'yes' %}
+                                                    <span class="text-success">Accepter la mission</span>
+                                                {% elif audit.accepte_mission == 'no' %}
+                                                    <span class="text-danger">Refuser la mission</span>
+                                                {% endif %}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="audit-actions">
+                                            <a href="{% url 'core:audit_detail' pk=audit.pk %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-eye"></i> Voir
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p class="text-muted">Aucun audit à signer.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- À signer (is_signed=False) -->
+                    <div class="tab-pane fade" id="signed-pending" role="tabpanel" aria-labelledby="signed-pending-tab">
+                        <div class="row">
+                            {% for audit in signed_audits %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="audit-card signed-card signed-pending-card">
+                                        <div class="audit-header">
+                                            <h4 class="audit-title">{{ audit.reference }}</h4>
+                                            <span class="audit-status signed-pending"><i class="bi bi-pen"></i> À signer</span>
+                                        </div>
+                                        <div class="audit-content">
+                                            <p class="audit-client">
+                                                <i class="bi bi-building"></i> {{ audit.client }}
+                                            </p>
+                                            <p class="audit-exercice">
+                                                <i class="bi bi-calendar"></i> Exercice {{ audit.exercice }}
+                                            </p>
+                                            <p class="audit-date">
+                                                <i class="bi bi-person"></i> Créé par : {{ audit.done_by.get_full_name|default:audit.done_by.username }}
+                                            </p>
+                                            <p class="audit-date">
+                                                <i class="bi bi-check-circle"></i> Révisé par : {{ audit.reviewed_by.get_full_name|default:audit.reviewed_by.username }}
+                                            </p>
+                                            <p class="audit-date">
+                                                <i class="bi bi-clock"></i> Révisé le : {{ audit.reviewed_at|date:"d/m/Y" }}
+                                            </p>
+                                            {% if audit.accepte_mission %}
+                                            <p class="audit-date">
+                                                <i class="bi bi-file-check"></i> Décision : 
+                                                {% if audit.accepte_mission == 'yes' %}
+                                                    <span class="text-success">Accepter la mission</span>
+                                                {% elif audit.accepte_mission == 'no' %}
+                                                    <span class="text-danger">Refuser la mission</span>
+                                                {% endif %}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="audit-actions">
+                                            <a href="{% url 'core:audit_detail' pk=audit.pk %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-eye"></i> Voir
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p class="text-muted">Aucun audit à signer.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Signés (is_signed=True) -->
+                    <div class="tab-pane fade" id="signed-done" role="tabpanel" aria-labelledby="signed-done-tab">
+                        <div class="row">
+                            {% for audit in signed_audits_done %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="audit-card signed-card">
+                                        <div class="audit-header">
+                                            <h4 class="audit-title">{{ audit.reference }}</h4>
+                                            <span class="audit-status published">Signé</span>
+                                        </div>
+                                        <div class="audit-content">
+                                            <p class="audit-client">
+                                                <i class="bi bi-building"></i> {{ audit.client }}
+                                            </p>
+                                            <p class="audit-exercice">
+                                                <i class="bi bi-calendar"></i> Exercice {{ audit.exercice }}
+                                            </p>
+                                            <p class="audit-date">
+                                                <i class="bi bi-person"></i> Créé par : {{ audit.done_by.get_full_name|default:audit.done_by.username }}
+                                            </p>
+                                            <p class="audit-date">
+                                                <i class="bi bi-check-circle"></i> Révisé par : {{ audit.reviewed_by.get_full_name|default:audit.reviewed_by.username }}
+                                            </p>
+                                            <p class="audit-date">
+                                                <i class="bi bi-clock"></i> Révisé le : {{ audit.reviewed_at|date:"d/m/Y" }}
+                                            </p>
+                                            {% if audit.accepte_mission %}
+                                            <p class="audit-date">
+                                                <i class="bi bi-file-check"></i> Décision : 
+                                                {% if audit.accepte_mission == 'yes' %}
+                                                    <span class="text-success">Accepter la mission</span>
+                                                {% elif audit.accepte_mission == 'no' %}
+                                                    <span class="text-danger">Refuser la mission</span>
+                                                {% endif %}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="audit-actions">
+                                            <a href="{% url 'core:audit_detail' pk=audit.pk %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-eye"></i> Voir
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p class="text-muted">Aucun audit signé.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.dashboard-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.stat-content h3 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.stat-content p {
+    color: #7f8c8d;
+    margin: 5px 0 0 0;
+    font-weight: 500;
+}
+
+
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+/* Tabs styling */
+.nav-tabs {
+    border-bottom: 0;
+}
+.nav-tabs .nav-link {
+    color: #000;
+    border: none;
+    border-bottom: 1px solid #dee2e6;
+    background: transparent;
+}
+.nav-tabs .nav-link:hover {
+    color: #000;
+}
+.nav-tabs .nav-link.active {
+    font-weight: 700;
+    border: none;
+    border-bottom: 2px solid #000;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-header .badge {
+    font-size: 1rem;
+    padding: 6px 12px;
+}
+
+.audits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.audit-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+/* Left border status for user audits */
+.audit-card.draft-card {
+    border-left: 4px solid #f39c12; /* orange for draft */
+}
+.audit-card.published-card {
+    border-left: 4px solid #27ae60; /* green for sent */
+}
+
+.audit-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.audit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.audit-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.audit-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+}
+
+.audit-status.published {
+    background-color: #27ae60;
+    color: white;
+}
+
+.audit-status.draft {
+    background-color: #f39c12;
+    color: white;
+}
+
+.audit-status.review-status {
+    background-color: #3498db;
+    color: white;
+}
+
+.review-card {
+    border-left: 4px solid #3498db;
+}
+
+/* Review status borders */
+.review-pending-card {
+    border-left: 4px solid #3498db; /* blue when pending */
+}
+.review-done-card {
+    border-left: 4px solid #27ae60; /* green when reviewed */
+}
+
+.audit-status.signed-status {
+    background-color: #27ae60;
+    color: white;
+}
+
+.signed-card {
+    border-left: 4px solid #27ae60;
+}
+
+/* Signed audits pending/done borders and badges */
+.signed-pending-card {
+    border-left: 4px solid #1b9dd9; /* blue for pending signature */
+}
+.signed-done-card {
+    border-left: 4px solid #27ae60; /* green when signed */
+}
+.audit-status.signed-pending {
+    background-color: #1b9dd9;
+    color: #fff;
+}
+
+.audit-content p {
+    margin: 8px 0;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.audit-content i {
+    margin-right: 8px;
+    color: #667eea;
+}
+
+.audit-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.audit-actions .btn {
+    flex: 1;
+}
+
+.no-audits {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.no-audits-content i {
+    font-size: 4rem;
+    color: #bdc3c7;
+    margin-bottom: 20px;
+}
+
+.no-audits-content h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.no-audits-content p {
+    color: #7f8c8d;
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .dashboard-title {
+        font-size: 2rem;
+    }
+    
+    .audits-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
